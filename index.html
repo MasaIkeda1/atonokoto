@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>あとのこと 手続きサービス</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE  occasion, hushed: a quiet, trustworthy service for families weeks after a funeral
+   IDEA   the family's own handbook: a bank statement turned into a checklist for this house only
+   PICTURE the statement card on the left, its lines becoming the family's procedure list on the right
+   COLOUR deep wisteria field, white paper cards, pale wisteria support, incense gold accent
+   TYPE   Zen Old Mincho for titles, Zen Kaku Gothic New for text
+   LAYOUT title across the top of the wisteria band, picture full width beneath; phone stacks title, picture, buttons */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#15121c);--ink:light-dark(#1f1b2a,#ece8f4);--sub:light-dark(#5d5670,#b8b0c9);--deep:#3d3360;--deep2:#2c2548;--pale:light-dark(#efecf6,#221d2e);--line:light-dark(#dcd6e8,#3a3349);--gold:#c58b2e;--paper:light-dark(#ffffff,#1d1927);--paperink:light-dark(#1f1b2a,#ece8f4)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:72px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 "Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;overflow-x:clip}
+img{max-width:100%}
+a{color:inherit}
+h1,h2,h3{font-family:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;font-weight:700;line-height:1.3;letter-spacing:.02em;text-wrap:balance;margin:0}
+h2{font-size:clamp(26px,3.4vw,36px)}
+h3{font-size:19px}
+p{margin:0}
+.band{padding-block:clamp(40px,5vw,80px);padding-left:max(5vw,16px);padding-right:max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+.lead{color:var(--sub);max-width:40em;margin-top:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 24px;border-radius:999px;font:inherit;font-weight:700;text-decoration:none;border:1.5px solid transparent;cursor:pointer}
+.btn:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,nav a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.btn.gold{background:var(--gold);color:#1c1405}
+.btn.gold:hover{background:#d69a3a}
+.btn.line{border-color:rgba(255,255,255,.6);color:#fff}
+.btn.line:hover{background:rgba(255,255,255,.1)}
+
+/* header */
+header{position:sticky;top:0;z-index:5;background:var(--deep2);color:#fff}
+.bar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:10px max(5vw,16px);flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-family:"Zen Old Mincho",serif;font-size:21px;font-weight:700;text-decoration:none}
+.logo svg{width:26px;height:26px}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav a{text-decoration:none;font-size:14px;padding:8px 10px;border-radius:8px;color:#e4def2}
+nav a:hover{background:rgba(255,255,255,.08)}
+nav a.cta{background:var(--gold);color:#1c1405;font-weight:700}
+
+/* hero */
+.hero{background:var(--deep);color:#fff;padding-bottom:clamp(40px,5vw,72px)}
+.hero h1{font-size:clamp(32px,4.6vw,50px);line-height:1.2;max-width:15em}
+.hero .lead{color:#d9d2ea;font-size:17px}
+.acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.pic{margin-top:clamp(28px,4vw,48px);display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,1.25fr);align-items:stretch;gap:0}
+.card{background:var(--paper);color:var(--paperink);border-radius:14px;padding:20px 22px;box-shadow:0 1px 0 rgba(0,0,0,.08),0 10px 24px rgba(20,12,40,.28)}
+.card h3{font-size:16px;font-family:"Zen Kaku Gothic New",sans-serif;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:6px}
+.card h3 small{font-weight:400;color:var(--sub);font-size:13px}
+.stmt .row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px;font-variant-numeric:tabular-nums}
+.stmt .row span:first-child{color:var(--sub)}
+.stmt .row span:last-child{white-space:nowrap;text-align:right}
+.stmt .row.hit span:nth-child(2){background:linear-gradient(transparent 60%,color-mix(in srgb,var(--gold) 38%,transparent) 60%)}
+.stmt .row:not(.hit){color:var(--sub)}
+.arrow{display:flex;align-items:center;justify-content:center}
+.arrow svg{width:44px;height:44px}
+.list .item{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.list .item b{font-weight:700;display:block;font-size:15px}
+.list .item i{font-style:normal;color:var(--sub);font-size:13px}
+.box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--deep);display:grid;place-items:center}
+:root[data-theme=dark] .box{border-color:#b8a9e0}
+.box.on{background:var(--deep);border-color:var(--deep)}
+.box.on::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.chip{font-size:12px;padding:3px 10px;border-radius:999px;white-space:nowrap;background:var(--pale);color:var(--ink)}
+.chip.done{background:#3d3360;color:#fff}
+.chip.wait{background:color-mix(in srgb,var(--gold) 25%,var(--paper))}
+.foot{margin-top:10px;font-size:13px;color:var(--sub);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.meter{height:6px;border-radius:9px;background:var(--pale);margin-top:8px;overflow:hidden}
+.meter div{height:100%;width:50%;background:var(--gold)}
+.sample{font-size:13px;color:#cfc6e3;margin-top:12px}
+@media (prefers-reduced-motion:no-preference){.list .item{animation:rise .5s ease both}.list .item:nth-child(2){animation-delay:.15s}.list .item:nth-child(3){animation-delay:.3s}.list .item:nth-child(4){animation-delay:.45s}.list .item:nth-child(5){animation-delay:.6s}.list .item:nth-child(6){animation-delay:.75s}.list .item:nth-child(7){animation-delay:.9s}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* compare */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:32px}
+.pane{border:1px solid var(--line);border-radius:14px;padding:24px}
+.pane.mine{background:var(--pale);border-color:transparent}
+.pane h3{margin-bottom:12px}
+.pane ul{margin:0;padding-left:1.2em}
+.pane li{margin:4px 0}
+.pane .tag{display:inline-block;font-size:13px;color:var(--sub);margin-bottom:6px}
+
+/* steps */
+.steps{list-style:none;margin:32px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.steps li{border-top:3px solid var(--deep);padding-top:16px}
+:root[data-theme=dark] .steps li{border-top-color:#8f7fc4}
+.steps .n{font-family:"Zen Old Mincho",serif;font-size:30px;color:var(--gold);line-height:1}
+.steps h3{margin:10px 0 8px}
+.steps p{color:var(--sub);font-size:15px}
+.note{margin-top:28px;padding:16px 20px;border-left:3px solid var(--gold);background:var(--pale);border-radius:0 10px 10px 0;font-size:15px}
+
+/* price */
+.price{background:var(--pale)}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px;align-items:stretch}
+.plan{background:var(--bg);border-radius:14px;padding:26px 24px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
+.plan.main{border:2px solid var(--deep)}
+:root[data-theme=dark] .plan.main{border-color:#8f7fc4}
+.plan .yen{font-family:"Zen Old Mincho",serif;font-size:clamp(30px,3.4vw,38px);font-weight:700;white-space:nowrap;line-height:1.1}
+.plan .yen small{font-size:15px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;color:var(--sub)}
+.plan ul{margin:0;padding-left:1.2em;font-size:15px;flex:1}
+.plan .who{font-size:14px;color:var(--sub)}
+.badge{align-self:flex-start;font-size:12px;background:var(--deep);color:#fff;padding:3px 10px;border-radius:999px}
+.small{font-size:13px;color:var(--sub);margin-top:18px}
+
+/* faq */
+.faq{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:40px}
+details{border-bottom:1px solid var(--line);padding:4px 0}
+summary{cursor:pointer;font-weight:700;padding:14px 0;min-height:44px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--gold);font-size:22px;line-height:1}
+details[open] summary::after{content:"−"}
+details p{padding:0 0 16px;color:var(--sub)}
+
+/* partner */
+.partner{background:var(--deep2);color:#fff}
+.partner .lead{color:#d9d2ea}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}
+.pgrid div{border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px}
+.pgrid h3{font-size:18px;margin-bottom:8px}
+.pgrid p{color:#d9d2ea;font-size:15px}
+
+/* form */
+.apply{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:40px;align-items:start}
+form{display:grid;gap:16px;background:var(--pale);padding:26px;border-radius:14px}
+label{display:grid;gap:6px;font-size:14px;font-weight:700}
+label span{font-weight:400;color:var(--sub)}
+input,select{font:inherit;font-size:16px;min-height:46px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-weight:400}
+.chk input{width:20px;min-height:20px;height:20px;margin-top:4px;flex:none}
+#done{display:none;padding:14px 16px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.contact p{margin-top:10px}
+.contact .tel{font-family:"Zen Old Mincho",serif;font-size:28px;font-weight:700;white-space:nowrap}
+
+footer{background:var(--deep2);color:#cfc6e3;font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer .logo{color:#fff}
+
+@media(max-width:900px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.plans,.pgrid{grid-template-columns:minmax(0,1fr)}.faq,.apply{grid-template-columns:minmax(0,1fr);gap:24px}}
+@media(max-width:720px){.pic{grid-template-columns:minmax(0,1fr)}.arrow{height:52px}.arrow svg{transform:rotate(90deg)}nav{margin-left:0;width:100%}}
+@media(max-width:600px){.two,.row2{grid-template-columns:minmax(0,1fr)}.steps{grid-template-columns:minmax(0,1fr)}nav a:not(.cta){display:none}nav{width:auto;margin-left:auto}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="logo" href="#top"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#c58b2e" stroke-width="1.6" stroke-linecap="round"/></svg>あとのこと</a>
+    <nav aria-label="ページ内">
+      <a href="#what">できること</a><a href="#flow">流れ</a><a href="#price">料金</a><a href="#faq">よくある質問</a><a href="#partner">葬儀社の方へ</a><a class="cta" href="#apply">お申し込み</a>
+    </nav>
+  </div>
+</header>
+
+<section class="band hero" id="top">
+  <div class="wrap">
+    <h1>葬儀のあとの手続きを、この家だけの一覧に。</h1>
+    <p class="lead">故人の通帳やカードの明細から、手続きが必要な相手先を洗い出し、書類をそろえ、出す順番と期限まで一緒に管理します。平日に何度も窓口へ通わなくて済むようにするサービスです。</p>
+    <div class="acts"><a class="btn gold" href="#apply">無料の簡易一覧を受け取る</a><a class="btn line" href="#flow">流れを見る</a></div>
+
+    <div class="pic" aria-label="明細から手続き一覧ができるまでの例">
+      <div class="card stmt">
+        <h3>故人の通帳の明細 <small>2026年9月〜10月</small></h3>
+        <div class="row hit"><span>09/27</span><span>デンキリョウキン</span><span>8,412</span></div>
+        <div class="row hit"><span>09/27</span><span>ガスリョウキン</span><span>4,980</span></div>
+        <div class="row"><span>09/30</span><span>ATM ヒキダシ</span><span>30,000</span></div>
+        <div class="row hit"><span>10/01</span><span>セイメイホケン</span><span>12,600</span></div>
+        <div class="row hit"><span>10/05</span><span>ケイタイ ツウワリョウ</span><span>6,270</span></div>
+        <div class="row hit"><span>10/10</span><span>カード ゴリヨウブン</span><span>21,358</span></div>
+        <div class="row hit"><span>10/15</span><span>ドウガハイシン</span><span>990</span></div>
+      </div>
+      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="21" fill="#c58b2e"/><path d="M14 22h15M23 15l7 7-7 7" fill="none" stroke="#1c1405" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="card list">
+        <h3>山本家の手続き一覧 <small>6件のうち3件が完了</small></h3>
+        <div class="item"><span class="box on"></span><span><b>電力会社</b><i>名義の変更</i></span><span class="chip done">完了</span></div>
+        <div class="item"><span class="box on"></span><span><b>携帯電話</b><i>解約と端末代の精算</i></span><span class="chip done">完了</span></div>
+        <div class="item"><span class="box on"></span><span><b>動画配信</b><i>解約</i></span><span class="chip done">完了</span></div>
+        <div class="item"><span class="box"></span><span><b>生命保険</b><i>死亡保険金の請求　期限は3年</i></span><span class="chip wait">書類をそろえています</span></div>
+        <div class="item"><span class="box"></span><span><b>クレジットカード</b><i>解約と残高の確認</i></span><span class="chip wait">相手先の返事待ち</span></div>
+        <div class="item"><span class="box"></span><span><b>ガス会社</b><i>名義の変更</i></span><span class="chip">これから</span></div>
+        <div class="foot"><span>次にやること：保険会社の請求書に記入して返送</span></div>
+        <div class="meter"><div></div></div>
+      </div>
+    </div>
+    <p class="sample">図の明細と一覧は説明のための例です。</p>
+  </div>
+</section>
+
+<section class="band" id="what">
+  <div class="wrap">
+    <h2>どんな手続きがあるかは、冊子に載っています。<br>この家の相手先がどこかは、載っていません。</h2>
+    <p class="lead">区役所の冊子には、役所の手続きと「金融機関」「クレジット会社」といった種類が並びます。実際にどの銀行、どの保険、どのサービスと契約していたかは、家ごとに違います。そこを一緒に探して、出すところまで進めます。</p>
+    <div class="two">
+      <div class="pane">
+        <span class="tag">区役所の冊子でわかること</span>
+        <h3>手続きの種類</h3>
+        <ul><li>死亡届、年金、健康保険など役所の手続き</li><li>銀行やカード会社にも連絡が必要だということ</li><li>窓口の場所と受付時間</li></ul>
+      </div>
+      <div class="pane mine">
+        <span class="tag">あとのことでわかること</span>
+        <h3>この家の相手先と、出すもの</h3>
+        <ul><li>明細から見つけた、契約していた会社の一覧</li><li>相手先ごとに必要な書類と、その入手先</li><li>出す順番と期限、いまどこまで進んだか</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="flow" style="padding-top:0">
+  <div class="wrap">
+    <h2>お申し込みから完了まで</h2>
+    <ol class="steps">
+      <li><div class="n">1</div><h3>QRから申し込む</h3><p>葬儀社からお渡しした案内のQR、またはこのページから。電話や訪問でのご案内はしていません。</p></li>
+      <li><div class="n">2</div><h3>明細を送る</h3><p>通帳やカードの明細を、スマートフォンで撮って送っていただきます。郵送でもかまいません。</p></li>
+      <li><div class="n">3</div><h3>一覧と書類が届く</h3><p>この家の相手先の一覧と、相手先ごとの書類一式、記入の見本をお届けします。</p></li>
+      <li><div class="n">4</div><h3>出して、終わらせる</h3><p>出す順番と期限を管理し、相手先への提出を取り次ぎます。進み具合はいつでも一覧で見られます。</p></li>
+    </ol>
+    <p class="note">書類はご遺族のお名前で出します。不動産の相続登記と相続税の申告は、提携する司法書士・税理士をご紹介します（費用は別になります）。</p>
+  </div>
+</section>
+
+<section class="band price" id="price">
+  <div class="wrap">
+    <h2>料金</h2>
+    <p class="lead">まずは無料の簡易一覧で、どのくらいの手続きがあるかを確かめてください。</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>簡易一覧</h3>
+        <div class="yen">0円</div>
+        <ul><li>明細から見つけた相手先の一覧</li><li>相手先ごとの手続きの種類</li></ul>
+        <p class="who">まず全体を知りたい方に</p>
+      </div>
+      <div class="plan main">
+        <span class="badge">いちばん多いご相談</span>
+        <h3>基本</h3>
+        <div class="yen">50,000円 <small>税込・1家族</small></div>
+        <ul><li>簡易一覧の内容すべて</li><li>相手先ごとの書類一式と記入の見本</li><li>提出の取り次ぎ</li><li>進み具合の管理と期限のお知らせ</li></ul>
+        <p class="who">平日に窓口へ行く時間がとれない方に</p>
+      </div>
+      <div class="plan">
+        <h3>手厚い</h3>
+        <div class="yen">100,000円〜 <small>税込</small></div>
+        <ul><li>基本の内容すべて</li><li>相手先が多い家、遠方に住む家の対応</li><li>司法書士・税理士との日程調整</li></ul>
+        <p class="who">相手先が多い方、離れて暮らす方に</p>
+      </div>
+    </div>
+    <p class="small">料金は検討中の案です。</p>
+  </div>
+</section>
+
+<section class="band" id="faq">
+  <div class="wrap faq">
+    <div><h2>よくある質問</h2><p class="lead">ほかにも気になることがあれば、お問い合わせからどうぞ。</p></div>
+    <div>
+      <details open><summary>行政書士や弁護士に頼むのと、何が違いますか。</summary><p>専門家は、相続人や財産の調査、遺産の分け方など、法律の判断が要る部分を担います。あとのことは、明細から相手先を見つけ、書類をそろえて出すまでの段取りを受け持ちます。法律の判断が要る場面では、提携する専門家をご紹介します。</p></details>
+      <details><summary>自分で窓口に行く必要はありますか。</summary><p>多くの相手先は郵送で手続きできます。窓口でしか受け付けない相手先がある場合は、一覧の中でお知らせし、行く回数がいちばん少なくなる順番をご提案します。</p></details>
+      <details><summary>明細を預けるのが心配です。</summary><p>お預かりした明細は、手続きの目的にだけ使い、完了後に削除します。葬儀社に、ご遺族の情報を当社へ渡していただくことはありません。お申し込みは、ご遺族ご自身からだけ受け付けます。</p></details>
+      <details><summary>葬儀社から案内をもらいました。葬儀社とはどういう関係ですか。</summary><p>あとのことは、提携する葬儀社に案内をお渡しいただいている別の会社です。案内は当社の広告です。お申し込みがあった場合、当社から葬儀社に紹介料をお支払いしています。</p></details>
+      <details><summary>どのくらいで終わりますか。</summary><p>相手先の数によりますが、一覧は明細が届いてから1週間ほどでお届けします。相手先からの返事を待つ手続きもあるため、全体ではそれより長くかかります。</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="band partner" id="partner">
+  <div class="wrap">
+    <h2>葬儀社の方へ</h2>
+    <p class="lead">区の冊子をお渡しするときに、案内を1枚添えていただくだけです。その後のやり取りはすべて当社が行います。</p>
+    <div class="pgrid">
+      <div><h3>手間はふえません</h3><p>ご遺族はQRから自分で申し込みます。ご担当者が説明したり、情報を取り次いだりする必要はありません。</p></div>
+      <div><h3>葬儀のあとも頼られる</h3><p>手続きの一覧の案内は、ご遺族が葬儀社に期待していることの一つです。法要や次のご依頼につながる接点になります。</p></div>
+      <div><h3>申し込みごとに紹介料</h3><p>お申し込み1件ごとに紹介料をお支払いします。案内は当社の広告と分かる形でお作りします。</p></div>
+    </div>
+    <div class="acts"><a class="btn gold" href="#apply">提携について問い合わせる</a></div>
+  </div>
+</section>
+
+<section class="band" id="apply">
+  <div class="wrap apply">
+    <div class="contact">
+      <h2>お申し込み・お問い合わせ</h2>
+      <p class="lead">無料の簡易一覧のお申し込みから始められます。こちらからお電話でご案内することはありません。</p>
+      <p>お電話でのご相談</p>
+      <p class="tel">03-0000-0000</p>
+      <p style="color:var(--sub);font-size:14px">平日 10:00〜18:00　メール info@example.jp</p>
+    </div>
+    <form id="f" novalidate>
+      <div class="row2">
+        <label for="nm">お名前<input id="nm" name="nm" autocomplete="name" placeholder="山本 花子"></label>
+        <label for="rel">故人とのご関係<select id="rel" name="rel"><option>配偶者</option><option selected>子</option><option>きょうだい</option><option>そのほか</option></select></label>
+      </div>
+      <label for="ml">メールアドレス<input id="ml" name="ml" type="email" autocomplete="email" placeholder="hanako@example.jp"></label>
+      <div class="row2">
+        <label for="pl">ご希望<select id="pl" name="pl"><option>無料の簡易一覧</option><option>基本</option><option>手厚い</option><option>葬儀社として提携の相談</option></select></label>
+        <label for="fh">葬儀社名 <span>任意</span><input id="fh" name="fh" placeholder="案内を受け取った葬儀社"></label>
+      </div>
+      <label class="chk" for="ok"><input id="ok" type="checkbox">個人情報の取り扱いに同意します</label>
+      <button class="btn gold" type="submit">送信する</button>
+      <p id="done" role="status"></p>
+    </form>
+  </div>
+</section>
+
+<footer class="band" style="padding-block:32px">
+  <div class="wrap">
+    <a class="logo" href="#top"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#c58b2e" stroke-width="1.6" stroke-linecap="round"/></svg>あとのこと</a>
+    <p>このページは検討中のサービスの試作です。サービス名、料金、連絡先は仮のものです。</p>
+  </div>
+</footer>
+
+<script>
+{
+  const f=document.getElementById('f'),d=document.getElementById('done');
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    const nm=document.getElementById('nm').value.trim(),ml=document.getElementById('ml').value.trim(),ok=document.getElementById('ok').checked;
+    d.style.display='block';
+    if(!nm||!ml){d.textContent='お名前とメールアドレスを入力してください。';return}
+    if(!ok){d.textContent='個人情報の取り扱いへの同意にチェックを入れてください。';return}
+    d.textContent=nm+' 様、ありがとうございます。試作のページのため、実際には送信されていません。';
+  });
+}
+</script>
+</body>
+</html>
