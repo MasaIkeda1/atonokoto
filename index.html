@@ -3,326 +3,962 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>あとのこと 手続きサービス</title>
+<title>あとのこと デモ</title>
+<script>
+/* ============================================================
+   ここを直すと、画面の名前や数字が変わります（すべて架空のデータ）
+   ============================================================ */
+const DATA = {
+  service: 'あとのこと',
+  funeral: 'さくら葬祭',
+  price: '1件 5万円（仮）',
+  priceNote: '照会の手数料と証明書の実費は別です',
+  promises: ['口座、保険、不動産、サブスクまで見つけます', '相手先ごとの書類をそろえます', '提出と、その後の進み具合まで見ます'],
+  today: '2026-12-15',
+  todayLabel: '12月15日',
+  deceased: { name: '田中 正男', age: 82, city: '文京区', died: '2026年11月2日', born: '昭和19年3月8日' },
+  applicant: { name: '田中 健一', rel: '長男' },
+  heirs: [ { name: '田中 健一', short: '健一', rel: '長男' }, { name: '佐藤 由美', short: '由美', rel: '長女' } ],
+  known: ['A銀行の口座', '年金', '自宅', '携帯電話', '電気・ガス・水道', 'シルバーパス'],
+  you: { checks: 3, signs: 7, office: 1 },
+  officeDay: '11月25日',
+  form: { account: '普通 0123456', payout: 'G銀行 本店 普通 7654321' },
+  signDocs: ['A銀行', 'B信用金庫', 'E証券', 'C生命'],
+  inquirySigned: '11月11日',
+  inquiries: [
+    { name: '生命保険契約照会', result: 'C生命の1件を確認' },
+    { name: '所有不動産記録証明', result: 'D市の土地を確認' },
+    { name: '信用情報の開示', result: '借入れなし' }
+  ],
+  frames: [
+    { title: '通帳', sub: '直近1年分のページ' },
+    { title: 'クレジットカードの明細', sub: '届いている利用明細' },
+    { title: '郵便物', sub: '保険、証券、税金のお知らせ' },
+    { title: '保険証と年金の書類', sub: '保険証、年金の通知など' }
+  ],
+  photos: [
+    { no: 1, frame: 0, kind: 'ba', label: 'A銀行の通帳 1' },
+    { no: 2, frame: 0, kind: 'ba', label: 'A銀行の通帳 2' },
+    { no: 3, frame: 0, kind: 'ba', label: 'A銀行の通帳 3' },
+    { no: 4, frame: 0, kind: 'ba', label: 'A銀行の通帳 4' },
+    { no: 5, frame: 0, kind: 'bb', label: 'B信用金庫の通帳 1' },
+    { no: 6, frame: 0, kind: 'bb', label: 'B信用金庫の通帳 2' },
+    { no: 7, frame: 1, kind: 'st', label: 'Fカードの利用明細 1' },
+    { no: 8, frame: 1, kind: 'st', label: 'Fカードの利用明細 2' },
+    { no: 9, frame: 2, kind: 'ml', label: 'C生命のご契約内容のお知らせ' },
+    { no: 10, frame: 2, kind: 'ml', label: '固定資産税の納税通知書' },
+    { no: 11, frame: 3, kind: 'pc', label: '年金振込通知書' },
+    { no: 12, frame: 3, kind: 'cd', label: '後期高齢者医療資格確認書' },
+    { no: 13, frame: 3, kind: 'cd', label: '介護保険被保険者証' }
+  ],
+  passbook: {
+    title: 'A銀行 普通預金', photo: '写真4',
+    rows: [
+      { d: '10-15', memo: 'ﾈﾝｷﾝ ｺｳｾｲﾛｳﾄﾞｳｼﾖｳ', out: '', inn: '198,416', res: '年金（受給の停止と未支給分の請求）' },
+      { d: '10-20', memo: 'ｹｲﾀｲﾘﾖｳｷﾝ', out: '3,278', inn: '', res: '携帯電話' },
+      { d: '10-26', memo: 'ｴﾇｴｲﾁｹｲ', out: '2,200', inn: '', res: 'NHK受信料' },
+      { d: '10-27', memo: 'ﾃﾞﾝｷﾘﾖｳｷﾝ', out: '6,912', inn: '', res: '電気' },
+      { d: '10-27', memo: 'Cｾｲﾒｲ', out: '8,640', inn: '', res: '生命保険（C生命）' },
+      { d: '10-27', memo: 'Fｶｰﾄﾞ', out: '12,480', inn: '', res: 'クレジットカード（明細も読む）' },
+      { d: '10-30', memo: 'Eｼﾖｳｹﾝ', out: '30,000', inn: '', res: '証券口座', isNew: true },
+      { d: '05-31', memo: 'Dｼ ｺﾃｲｼｻﾝｾﾞｲ', out: '12,300', inn: '', res: 'D市に不動産の可能性', isNew: true, sep: '写真2　5月のページ' }
+    ]
+  },
+  card: [
+    { memo: 'ﾄﾞｳｶﾞﾊｲｼﾝ', yen: 990, res: '動画配信' },
+    { memo: 'ｵﾝｶﾞｸﾊｲｼﾝ', yen: 980, res: '音楽配信' },
+    { memo: 'ｸﾗｳﾄﾞﾎｿﾞﾝ', yen: 400, res: '写真のクラウド保存' },
+    { memo: 'ﾃﾞﾝｼｼﾖｾｷ', yen: 980, res: '電子書籍の読み放題' },
+    { memo: 'ｱﾌﾟﾘｽﾄｱ', yen: 550, res: 'アプリ経由の支払い。中身は明細に出ない' },
+    { memo: 'Jﾋｶﾘ', yen: 5720, res: 'インターネット回線' }
+  ],
+  newCards: [
+    { title: 'E証券　ネット証券の口座', ev: '写真4　A銀行の通帳　10月30日　Eｼﾖｳｹﾝ 30,000円' },
+    { title: 'D市の土地', ev: '写真2　A銀行の通帳　5月31日　Dｼ ｺﾃｲｼｻﾝｾﾞｲ 12,300円' },
+    { title: 'サブスク5件', what: '動画配信、音楽配信、写真の保存、電子書籍、アプリ経由の支払い', ev: '写真7と8　Fカードの利用明細　ﾄﾞｳｶﾞﾊｲｼﾝ 990円ほか4行' }
+  ],
+  /* 一覧の31件。tab：money お金と財産、life 暮らしの契約、office 役所と年金
+     found：確定、新たに発見、確認中。prog：完了、進行中、通知待ち、これから、確認のお願い
+     dots：その後の画面の点の数（出した、相手先で処理中、完了） */
+  items: [
+    { no: 1, tab: 'money', name: 'A銀行', what: '普通預金の払い戻し', src: '写真1から4　A銀行の通帳', found: '確定', prog: '完了', dots: 3, log: '12月3日に発送。12月12日に払い戻し完了', docs: '相続届（A銀行の書式）、戸籍一式、相続人全員の印鑑証明', next: '記入済みの相続届を確かめて、署名と押印をします', who: '当社が書式に入れ、健一さんと由美さんが確かめて署名します' },
+    { no: 2, tab: 'money', name: 'B信用金庫', what: '定期預金の払い戻し', src: '写真5と6　B信用金庫の通帳', found: '確定', prog: '進行中', dots: 2, log: '12月3日に発送。相手先で手続き中', docs: '相続の届出書（B信用金庫の書式）、戸籍一式、相続人全員の印鑑証明', next: '記入済みの届出書を確かめて、署名と押印をします', who: '当社が書式に入れ、健一さんと由美さんが確かめて署名します' },
+    { no: 3, tab: 'money', name: 'E証券', what: 'ネット証券の口座', src: '写真4　A銀行の通帳　10月30日　Eｼﾖｳｹﾝ 30,000円', found: '新たに発見', prog: '進行中', dots: 2, log: '12月3日に発送。相手先で手続き中', docs: '相続の手続き依頼書（E証券の書式）、残高の証明、戸籍一式、相続人全員の印鑑証明', next: '残高の証明が届いたら、依頼書を確かめて署名します', who: '当社が残高の証明を取り寄せて書式に入れ、健一さんと由美さんが署名します' },
+    { no: 4, tab: 'money', name: 'C生命', what: '終身保険の保険金の請求', src: '写真4　Cｾｲﾒｲ 8,640円と、写真9　ご契約内容のお知らせ。生命保険契約照会で確認', found: '確定', prog: '進行中', dots: 2, log: '12月3日に発送。保険金を請求中', docs: '保険金の請求書（C生命の書式）、死亡の分かる書類、受取人の本人確認書類', next: '請求書を確かめて、受取人の方が署名します', who: '当社が書式に入れ、受取人の方が確かめて署名します' },
+    { no: 5, tab: 'money', name: '自宅の土地と建物', what: '文京区。相続登記', src: '写真10　固定資産税の納税通知書', found: '確定', prog: 'これから', dots: 0, log: '相続登記は、提携の司法書士が受けます', docs: '登記に要る書類は、司法書士がご案内します', next: '一覧と戸籍一式を、提携の司法書士に引き継ぎます', who: '提携の司法書士（お客様が直接ご依頼）' },
+    { no: 6, tab: 'money', name: 'D市の土地', what: '相続登記', src: '写真2　A銀行の通帳　5月31日　Dｼ ｺﾃｲｼｻﾝｾﾞｲ 12,300円。所有不動産記録証明で確認', found: '新たに発見', prog: 'これから', dots: 0, log: '相続登記は、提携の司法書士が受けます', docs: '登記に要る書類は、司法書士がご案内します', next: '一覧と戸籍一式を、提携の司法書士に引き継ぎます', who: '提携の司法書士（お客様が直接ご依頼）' },
+    { no: 7, tab: 'money', name: '借入れ', what: '信用情報の開示', src: '信用情報の開示。該当なし', found: '確定', prog: '完了', dots: 3, log: '11月11日に申し込み。11月28日に回答、借入れなし', docs: '開示の申込書、戸籍一式、本人確認書類', next: 'ありません', who: '当社が書式に入れ、健一さんが署名して申し込みました' },
+
+    { no: 8, tab: 'life', name: '電気', what: '解約', src: '写真4　ﾃﾞﾝｷﾘﾖｳｷﾝ 6,912円', found: '確定', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月5日に解約' },
+    { no: 9, tab: 'life', name: 'ガス', what: '解約', src: '写真3　ｶﾞｽﾘﾖｳｷﾝ', found: '確定', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月5日に解約' },
+    { no: 10, tab: 'life', name: '水道', what: '解約', src: '写真3　ｽｲﾄﾞｳﾘﾖｳｷﾝ', found: '確定', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月8日に解約' },
+    { no: 11, tab: 'life', name: 'NHK受信料', what: '解約', src: '写真4　ｴﾇｴｲﾁｹｲ 2,200円', found: '確定', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月9日に解約' },
+    { no: 12, tab: 'life', name: '携帯電話', what: '解約', src: '写真4　ｹｲﾀｲﾘﾖｳｷﾝ 3,278円', found: '確定', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月6日に解約' },
+    { no: 13, tab: 'life', name: '新聞', what: '解約', src: '写真3　ｼﾝﾌﾞﾝﾀﾞｲ', found: '確定', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月4日に解約' },
+    { no: 14, tab: 'life', name: 'Fカード', what: 'クレジットカードの解約', src: '写真4　Fｶｰﾄﾞ 12,480円', found: '確定', prog: '進行中', dots: 2, cancel: true, log: '12月3日に申し込み。未払いの12,480円を精算して解約します', docs: '解約の申し込み、死亡の分かる書類の写し。未払い分の精算', next: '未払いの12,480円を精算して、解約します' },
+    { no: 15, tab: 'life', name: 'インターネット回線', what: '解約', src: '写真7　Fカードの利用明細　Jﾋｶﾘ 5,720円', found: '確定', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月10日に解約' },
+    { no: 16, tab: 'life', name: '動画配信', what: '解約', src: '写真7　Fカードの利用明細　ﾄﾞｳｶﾞﾊｲｼﾝ 990円', found: '新たに発見', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月4日に解約' },
+    { no: 17, tab: 'life', name: '音楽配信', what: '解約', src: '写真7　Fカードの利用明細　ｵﾝｶﾞｸﾊｲｼﾝ 980円', found: '新たに発見', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月4日に解約' },
+    { no: 18, tab: 'life', name: '写真のクラウド保存', what: '解約', src: '写真8　Fカードの利用明細　ｸﾗｳﾄﾞﾎｿﾞﾝ 400円', found: '新たに発見', prog: '完了', dots: 3, cancel: true, log: '解約の前に、写真を残すかを確かめました。12月11日に解約', next: '解約の前に、写真を残すかを決めます' },
+    { no: 19, tab: 'life', name: '電子書籍の読み放題', what: '解約', src: '写真8　Fカードの利用明細　ﾃﾞﾝｼｼﾖｾｷ 980円', found: '新たに発見', prog: '完了', dots: 3, cancel: true, log: '12月3日に申し込み。12月5日に解約' },
+    { no: 20, tab: 'life', name: 'アプリ経由の支払い', what: '中身を確認中', yen: '550円', src: '写真8　Fカードの利用明細　ｱﾌﾟﾘｽﾄｱ 550円。中身は明細に出ません', found: '新たに発見', foundNote: '中身は確認中', prog: '確認のお願い', dots: 0, log: '何の支払いか、分かる方は教えてください', docs: '中身が分かってから決めます', next: '何の支払いか、分かる方は教えてください', who: 'ご家族に確認をお願いしています' },
+
+    { no: 21, tab: 'office', place: '区役所', corner: true, name: '後期高齢者医療資格確認書の返却', src: '写真12　資格確認書', found: '確定', prog: '完了', dots: 3, log: '11月25日に区役所で返却', limit: '期限なし', desk: '11階 国保年金課', docs: '資格確認書' },
+    { no: 22, tab: 'office', place: '区役所', corner: true, name: '葬祭費の申請（7万円）', src: '写真12　資格確認書', found: '確定', prog: '進行中', dots: 2, log: '11月25日に申請。振込待ち（7万円）', limit: '葬祭を行った日の翌日から2年以内', desk: '11階 国保年金課', docs: '葬儀の領収書（申請者の氏名と葬儀代の記載があるもの）、振込先の通帳' },
+    { no: 23, tab: 'office', place: '区役所', corner: true, name: '後期高齢者医療の通知の送付先の変更', src: '写真12　資格確認書', found: '確定', prog: '完了', dots: 3, log: '11月25日に区役所で届出', limit: '速やかに', desk: '11階 国保年金課', docs: '届出の用紙（窓口にあります）' },
+    { no: 24, tab: 'office', place: '区役所', name: '後期高齢者医療保険料の精算', src: '写真12　資格確認書', found: '確定', prog: '通知待ち', dots: 0, log: '区から書類が届いたら出します', limit: '区から書類が届いてから', desk: '11階 国保年金課', docs: '区から届く書類', next: '区から書類が届いたら、写真を送ってください', who: '届いた書類の写真を送っていただき、出し方をご案内します' },
+    { no: 25, tab: 'office', place: '区役所', corner: true, name: '介護保険被保険者証の返却', src: '写真13　介護保険被保険者証', found: '確定', prog: '完了', dots: 3, log: '11月25日に区役所で返却', limit: '速やかに', desk: '9階 介護保険課', docs: '介護保険被保険者証' },
+    { no: 26, tab: 'office', place: '区役所', name: '介護保険料の還付', src: '写真13　介護保険被保険者証', found: '確定', prog: '通知待ち', dots: 0, log: '未支給年金の請求の後に出します', limit: '通知が届いてから2年以内', desk: '9階 介護保険課', docs: '区から届く通知', next: '未支給年金の請求の後、区から通知が届いたら出します', who: '届いた通知の写真を送っていただき、出し方をご案内します' },
+    { no: 27, tab: 'office', place: '区役所', corner: true, name: '住民税の相続人代表者指定届', src: '写真11　年金振込通知書（住民税の天引き）', found: '確定', prog: '完了', dots: 3, log: '11月25日に区役所で届出', limit: 'おおむね3か月', desk: '10階 税務課', docs: '届出の用紙（窓口にあります）' },
+    { no: 28, tab: 'office', place: '年金事務所', name: '年金の受給停止と未支給年金の請求', src: '写真4　ﾈﾝｷﾝ 198,416円と、写真11　年金振込通知書', found: '確定', prog: '進行中', dots: 2, log: '12月3日に発送。年金事務所で審査中', docs: '未支給年金の請求書、戸籍一式、受け取る方の通帳', next: '請求書を書いて、年金事務所に送ります', who: '請求する方が、画面の案内に沿って書いて出します' },
+    { no: 29, tab: 'office', place: '都税事務所', name: '固定資産税の届出', src: '写真10　固定資産税の納税通知書', found: '確定', prog: '完了', dots: 3, log: '12月3日に発送。12月10日に受付', docs: '相続人代表者指定届', next: 'ありません', who: '健一さんが、画面の案内に沿って書いて出しました' },
+    { no: 30, tab: 'office', place: '郵送', name: 'シルバーパスの返納', src: '申し込みのときの回答', found: '確定', prog: '完了', dots: 3, log: '12月3日に発送。12月8日に返納', docs: 'シルバーパス', next: 'ありません', who: '当社が返送を取り次ぎました' },
+    { no: 31, tab: 'office', place: '税務署', name: '準確定申告', src: '年金の収入', found: '確認中', prog: 'これから', dots: 0, log: '要るかどうかは、提携の税理士に相談します', limit: '要る場合は2027年3月2日まで', docs: '要る場合は、税理士がご案内します', next: '要るかどうかを、提携の税理士に相談します', who: '提携の税理士（お客様が直接ご依頼）' }
+  ],
+  office: {
+    book: 'おくやみハンドブック（令和8年9月版）',
+    total: 76,
+    picked: [3, 11, 12, 20, 34, 47, 58],
+    notApplicable: ['国民健康保険の手続き', '児童手当', '障害者手帳の返却', '原動機付自転車の廃車', '犬の所有者の変更', '区営住宅の返還', '医療従事者免許の届出'],
+    visitTitle: '区役所へ行く日の案内',
+    visit: [
+      '区役所へ行くのは1回です（11月25日）',
+      '2階のおくやみコーナー（予約制、1枠60分）で、5件をまとめて出せます。資格確認書の返却、葬祭費の申請、通知の送付先の変更、介護保険被保険者証の返却、住民税の相続人代表者指定届',
+      '予約は、利用日の5日前までにWEBか電話でお願いします',
+      '同じ2階の戸籍住民課で、戸籍（出生から死亡まで）を請求します。受け取りが後日になることがあります',
+      '持ち物：顔写真つきの本人確認書類、葬儀の領収書（申請者の氏名と葬儀代の記載があるもの）、振込先の通帳、資格確認書、介護保険被保険者証',
+      '残りの2件は、区から書類が届いてから出します。届いたら写真を送ってください'
+    ]
+  },
+  deadlines: [
+    { name: '相続放棄（する場合）', date: '2027-02-02', label: '2027年2月2日まで' },
+    { name: '準確定申告（要る場合）', date: '2027-03-02', label: '2027年3月2日まで' },
+    { name: '相続税の申告（要る場合）', date: '2027-09-02', label: '2027年9月2日まで' },
+    { name: '相続登記', label: '3年以内' },
+    { name: '葬祭費', label: '2年以内', note: '申請済み' }
+  ],
+  partner: '不動産が2件あります。相続登記は、提携の司法書士に直接ご依頼いただけます。一覧と戸籍一式をそのまま渡せます。',
+  notice: { from: 'さくら葬祭からのお知らせ', body: '四十九日法要のご案内（12月20日）' }
+};
+
+/* 場面ごとの解説（右の欄）。step は上の帯の位置（0 申し込み、1 写真を送る、2 確認する、3 署名する、4 その後） */
+const TEXT = {
+  steps: ['申し込み', '写真を送る', '確認する', '署名する', 'その後'],
+  scenes: [
+    { name: '入口', step: 0, bar: 'さくら葬祭のご案内',
+      say: '葬儀の精算のときに、葬儀社が自社の名前で案内を渡します。遺族はQRコードから自分で申し込みます。',
+      back: ['葬儀社には、申し込み1件につき紹介料か、自社のお客様への割引を用意します。', '遺族の連絡先を、葬儀社から受け取ることはありません。'] },
+    { name: '申し込み', step: 0,
+      say: '申し込みで聞くのはこれだけです。財産の中身は聞きません。写真から当社が見つけます。',
+      back: ['申し込みの内容から、当てはまりそうな役所の手続きを先に割り出します。', '相続人のお名前で使う照会の申請書を、この段階で用意します。'] },
+    { name: '写真を送る', step: 1,
+      say: '遺族の作業は、撮って送るだけです。故人のIDやパスワードは受け取りません。',
+      back: ['13枚の写真を、通帳、明細、郵便物に分けて読みます。', '読めない写真は、人が見て、撮り直しをお願いします。'] },
+    { name: 'AIが読む', step: 1,
+      say: '契約がネット上にあっても、支払いは口座とカードの明細に残ります。AIが明細の1行から契約先の候補を出し、照会の制度で確かめます。',
+      flow: [['読む', '明細と郵便物から支払先を拾う'], ['推定する', '契約先と口座の候補を出す'], ['照会を用意する', '書式に入れ、本人が確認する'], ['取り込む', '回答から残高と内容を確定する']],
+      back: ['人が、例外への対応と最終の確認をします。'] },
+    { name: '一覧', step: 2,
+      say: '家全体が1枚にまとまります。役所は当てはまるものだけに絞り、民間は会社名つきで出します。',
+      back: ['相手先ごとに、必要な書類と出し方、出す順番を割り出しています。', '役所の手続きには、窓口と期限、まとめて出せるものを添えます。'] },
+    { name: '確認する', step: 2,
+      say: '書類は記入済みで届きます。遺族は見て、確かめるだけです。同じ戸籍を相手先ごとに集め直しません。',
+      back: ['各社の書式に入れるところまでが当社です。中身を確定するのは本人です。', '戸籍や印鑑証明は1回お預かりし、全部の相手先に付けます。'] },
+    { name: '署名する', step: 3,
+      say: '署名と実印は本人にしかできません。当社は、記入、印刷、発送、回収を取り次ぎます。',
+      back: ['記入済みの書類に付せんと返信用の封筒をつけ、相続人お一人ずつに送ります。', '戻った書類を確かめてから、各社に送ります。'] },
+    { name: 'その後', step: 4,
+      say: '出して終わりにしません。相手先ごとの進み具合と期限を、最後まで見ます。登記と税は、同じ一覧を持って提携士業に引き継ぎます。',
+      back: ['遺族が何度も開くこの画面に、葬儀社の名前とお知らせが残ります。'] }
+  ],
+  autoSeconds: [6, 6, 7, 11, 8, 7, 7, 8]
+};
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* VOICE  occasion, hushed: a quiet, trustworthy service for families weeks after a funeral
-   IDEA   the family's own handbook: a bank statement turned into a checklist for this house only
-   PICTURE the statement card on the left, its lines becoming the family's procedure list on the right
-   COLOUR deep wisteria field, white paper cards, pale wisteria support, incense gold accent
-   TYPE   Zen Old Mincho for titles, Zen Kaku Gothic New for text
-   LAYOUT title across the top of the wisteria band, picture full width beneath; phone stacks title, picture, buttons */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#15121c);--ink:light-dark(#1f1b2a,#ece8f4);--sub:light-dark(#5d5670,#b8b0c9);--deep:#3d3360;--deep2:#2c2548;--pale:light-dark(#efecf6,#221d2e);--line:light-dark(#dcd6e8,#3a3349);--gold:#c58b2e;--paper:light-dark(#ffffff,#1d1927);--paperink:light-dark(#1f1b2a,#ece8f4)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+/* VOICE  work: a pitch demo for funeral homes, banks and insurers; calm, exact, in the slides' own colours
+   IDEA   a presenter's stage: the family's phone on the left, what the company does behind it on the right
+   PICTURE the phone screen itself, the working product, one scene per click
+   COLOUR navy #02253C leads, blue-gray #355163 and the grays support, orange #B45309 only marks newly found
+   TYPE   Noto Sans JP throughout, tabular numbers
+   LAYOUT laptop: band on top, phone left, notes right, controls below; narrow: the screen fills, notes fold below */
+:root{color-scheme:light;--navy:#02253C;--blue:#355163;--mid:#5B707E;--gray:#CCD3D8;--lg:#9AA8B1;--bg:#FCFCFB;--white:#FFFFFE;--org:#B45309;--tint:#E8ECEF;--line:#DDE2E6;--ai:#DCE5EC;--orgt:#F9F0E8}
 *{box-sizing:border-box;min-width:0}
-html{scroll-padding-top:72px;scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 "Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;overflow-x:clip}
-img{max-width:100%}
-a{color:inherit}
-h1,h2,h3{font-family:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",serif;font-weight:700;line-height:1.3;letter-spacing:.02em;text-wrap:balance;margin:0}
-h2{font-size:clamp(26px,3.4vw,36px)}
-h3{font-size:19px}
-p{margin:0}
-.band{padding-block:clamp(40px,5vw,80px);padding-left:max(5vw,16px);padding-right:max(5vw,16px)}
-.wrap{max-width:1180px;margin:0 auto}
-.lead{color:var(--sub);max-width:40em;margin-top:14px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 24px;border-radius:999px;font:inherit;font-weight:700;text-decoration:none;border:1.5px solid transparent;cursor:pointer}
-.btn:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,nav a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-.btn.gold{background:var(--gold);color:#1c1405}
-.btn.gold:hover{background:#d69a3a}
-.btn.line{border-color:rgba(255,255,255,.6);color:#fff}
-.btn.line:hover{background:rgba(255,255,255,.1)}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--navy);font:16px/1.6 "Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;overflow:hidden;line-break:strict;-webkit-text-size-adjust:100%}
+button,input{font:inherit;color:inherit}
+p,ul,ol,dl,dd,h2{margin:0}
+ul,ol{padding:0;list-style:none}
+.num{font-variant-numeric:tabular-nums}
+.say,.hero,#scr h2,#scr .lead,.cmp .sen,.bl,.ask p,.hand p{word-break:auto-phrase}
+#app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
 
-/* header */
-header{position:sticky;top:0;z-index:5;background:var(--deep2);color:#fff}
-.bar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:20px;padding:10px max(5vw,16px);flex-wrap:wrap}
-.logo{display:flex;align-items:center;gap:10px;font-family:"Zen Old Mincho",serif;font-size:21px;font-weight:700;text-decoration:none}
-.logo svg{width:26px;height:26px}
-nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
-nav a{text-decoration:none;font-size:14px;padding:8px 10px;border-radius:8px;color:#e4def2}
-nav a:hover{background:rgba(255,255,255,.08)}
-nav a.cta{background:var(--gold);color:#1c1405;font-weight:700}
+/* 上の帯 */
+.top{display:flex;align-items:center;gap:20px;padding:9px 24px;background:var(--navy);color:var(--white)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:19px;white-space:nowrap;flex:none}
+.logo svg{width:24px;height:24px;flex:none}
+.steps{display:flex;align-items:center;margin:0 auto}
+.steps li{position:relative;display:flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;border-radius:6px;color:var(--lg);font-size:16px;white-space:nowrap}
+.steps li+li{margin-left:26px}
+.steps li+li::before{content:"";position:absolute;left:-21px;top:50%;width:16px;height:2px;background:var(--blue)}
+.steps .k{display:grid;place-items:center;width:24px;height:24px;border-radius:6px;border:1.5px solid currentColor;font-size:14px;font-weight:700;line-height:1}
+.steps li.done{color:var(--white)}
+.steps li.done .k{background:var(--blue);border-color:var(--blue)}
+.steps li.now{background:var(--white);color:var(--navy);font-weight:700}
+.steps li.now .k{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.demo{flex:none;font-size:14px;line-height:1.4;padding:4px 10px;border:1px solid var(--lg);border-radius:6px;white-space:nowrap}
 
-/* hero */
-.hero{background:var(--deep);color:#fff;padding-bottom:clamp(40px,5vw,72px)}
-.hero h1{font-size:clamp(32px,4.6vw,50px);line-height:1.2;max-width:15em}
-.hero .lead{color:#d9d2ea;font-size:17px}
-.acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
-.pic{margin-top:clamp(28px,4vw,48px);display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,1.25fr);align-items:stretch;gap:0}
-.card{background:var(--paper);color:var(--paperink);border-radius:14px;padding:20px 22px;box-shadow:0 1px 0 rgba(0,0,0,.08),0 10px 24px rgba(20,12,40,.28)}
-.card h3{font-size:16px;font-family:"Zen Kaku Gothic New",sans-serif;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:6px}
-.card h3 small{font-weight:400;color:var(--sub);font-size:13px}
-.stmt .row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px;font-variant-numeric:tabular-nums}
-.stmt .row span:first-child{color:var(--sub)}
-.stmt .row span:last-child{white-space:nowrap;text-align:right}
-.stmt .row.hit span:nth-child(2){background:linear-gradient(transparent 60%,color-mix(in srgb,var(--gold) 38%,transparent) 60%)}
-.stmt .row:not(.hit){color:var(--sub)}
-.arrow{display:flex;align-items:center;justify-content:center}
-.arrow svg{width:44px;height:44px}
-.list .item{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
-.list .item b{font-weight:700;display:block;font-size:15px}
-.list .item i{font-style:normal;color:var(--sub);font-size:13px}
-.box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--deep);display:grid;place-items:center}
-:root[data-theme=dark] .box{border-color:#b8a9e0}
-.box.on{background:var(--deep);border-color:var(--deep)}
-.box.on::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
-.chip{font-size:12px;padding:3px 10px;border-radius:999px;white-space:nowrap;background:var(--pale);color:var(--ink)}
-.chip.done{background:#3d3360;color:#fff}
-.chip.wait{background:color-mix(in srgb,var(--gold) 25%,var(--paper))}
-.foot{margin-top:10px;font-size:13px;color:var(--sub);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.meter{height:6px;border-radius:9px;background:var(--pale);margin-top:8px;overflow:hidden}
-.meter div{height:100%;width:50%;background:var(--gold)}
-.sample{font-size:13px;color:#cfc6e3;margin-top:12px}
-@media (prefers-reduced-motion:no-preference){.list .item{animation:rise .5s ease both}.list .item:nth-child(2){animation-delay:.15s}.list .item:nth-child(3){animation-delay:.3s}.list .item:nth-child(4){animation-delay:.45s}.list .item:nth-child(5){animation-delay:.6s}.list .item:nth-child(6){animation-delay:.75s}.list .item:nth-child(7){animation-delay:.9s}}
-@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* 舞台 */
+.stage{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center;width:100%;max-width:1240px;height:100%;min-height:0;margin:0 auto;padding:10px clamp(16px,3vw,40px)}
+.phone{display:flex;align-self:center;width:414px;height:100%;min-height:0;max-height:820px;padding:11px;border-radius:44px;background:var(--navy);box-shadow:0 10px 26px rgba(2,37,60,.16)}
+.screen{flex:1;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);background:var(--white);border-radius:34px;overflow:hidden}
+.sbar{display:flex;justify-content:space-between;align-items:center;height:28px;padding:4px 26px 0;font-size:14px;font-weight:700}
+.bat{position:relative;display:inline-block;width:24px;height:12px;border:1.5px solid var(--navy);border-radius:3px}
+.bat::after{content:"";position:absolute;inset:1.5px 7px 1.5px 1.5px;background:var(--navy);border-radius:1px}
+.abar{display:flex;align-items:center;justify-content:space-between;gap:8px;height:44px;padding:0 16px;border-bottom:1px solid var(--line)}
+.abar .logo{font-size:16px;color:var(--navy)}
+.abar .logo svg{width:20px;height:20px}
+.abar .who{font-size:14px;color:var(--mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scr{position:relative;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px 28px;font-size:15px;line-height:1.6;scrollbar-width:thin;outline:none}
+#scr.fade{animation:fin .24s ease both}
+@keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
-/* compare */
-.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:32px}
-.pane{border:1px solid var(--line);border-radius:14px;padding:24px}
-.pane.mine{background:var(--pale);border-color:transparent}
-.pane h3{margin-bottom:12px}
-.pane ul{margin:0;padding-left:1.2em}
-.pane li{margin:4px 0}
-.pane .tag{display:inline-block;font-size:13px;color:var(--sub);margin-bottom:6px}
+/* 解説 */
+.notes{align-self:center;max-width:760px}
+.ntog{display:none}
+.scn{font-size:18px;color:var(--mid);font-weight:500;margin:0 0 18px}
+.scn b{display:inline-grid;place-items:center;min-width:30px;height:30px;margin-right:10px;border-radius:6px;background:var(--navy);color:var(--white);font-size:18px}
+.lab{font-size:18px;color:var(--mid);font-weight:500;margin:0 0 6px}
+.say{font-size:clamp(24px,2.35vw,30px);line-height:1.5;font-weight:700;margin:0 0 26px;text-wrap:pretty}
+.back{border-top:2px solid var(--navy);padding-top:16px}
+.back p.bl{font-size:19px;line-height:1.65;color:var(--blue);margin:0 0 6px}
+.flow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:2px 0 12px}
+.flow div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 10px;padding:10px 12px;border:1px solid var(--gray);border-radius:8px;background:var(--white)}
+.flow i{grid-row:span 2;display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:var(--navy);color:var(--white);font-style:normal;font-weight:700;font-size:18px}
+.flow b{font-size:18px;line-height:1.4}
+.flow span{font-size:18px;line-height:1.45;color:var(--blue)}
 
-/* steps */
-.steps{list-style:none;margin:32px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
-.steps li{border-top:3px solid var(--deep);padding-top:16px}
-:root[data-theme=dark] .steps li{border-top-color:#8f7fc4}
-.steps .n{font-family:"Zen Old Mincho",serif;font-size:30px;color:var(--gold);line-height:1}
-.steps h3{margin:10px 0 8px}
-.steps p{color:var(--sub);font-size:15px}
-.note{margin-top:28px;padding:16px 20px;border-left:3px solid var(--gold);background:var(--pale);border-radius:0 10px 10px 0;font-size:15px}
+/* 下の操作 */
+.ctrl{position:relative;display:flex;align-items:center;gap:10px;padding:8px 24px;background:var(--white);border-top:1px solid var(--gray)}
+.pbar{position:absolute;left:0;top:-2px;height:3px;width:0;background:var(--navy)}
+.b{min-height:44px;padding:0 18px;border-radius:8px;border:1.5px solid var(--navy);background:var(--white);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;white-space:nowrap}
+.b:hover{background:var(--tint)}
+.b.p{min-width:132px;background:var(--navy);color:var(--white)}
+.b.p:hover{background:#0c3754}
+.b.t{border-color:transparent}
+.b:disabled{opacity:.35;cursor:default}
+.b:disabled:hover{background:var(--white)}
+.b.p:disabled:hover{background:var(--navy)}
+.dots{display:flex;align-items:center;margin:0 auto}
+.dot{display:grid;place-items:center;width:28px;height:44px;padding:0;border:0;background:none;cursor:pointer}
+.dot i{display:block;width:12px;height:12px;border-radius:50%;border:2px solid var(--lg);background:var(--white)}
+.dot.done i{border-color:var(--navy)}
+.dot.now i{width:16px;height:16px;border-color:var(--navy);background:var(--navy)}
+.hint{font-size:14px;color:var(--mid);white-space:nowrap}
+button:focus-visible,input:focus-visible,#scr:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
-/* price */
-.price{background:var(--pale)}
-.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px;align-items:stretch}
-.plan{background:var(--bg);border-radius:14px;padding:26px 24px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--line)}
-.plan.main{border:2px solid var(--deep)}
-:root[data-theme=dark] .plan.main{border-color:#8f7fc4}
-.plan .yen{font-family:"Zen Old Mincho",serif;font-size:clamp(30px,3.4vw,38px);font-weight:700;white-space:nowrap;line-height:1.1}
-.plan .yen small{font-size:15px;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;color:var(--sub)}
-.plan ul{margin:0;padding-left:1.2em;font-size:15px;flex:1}
-.plan .who{font-size:14px;color:var(--sub)}
-.badge{align-self:flex-start;font-size:12px;background:var(--deep);color:#fff;padding:3px 10px;border-radius:999px}
-.small{font-size:13px;color:var(--sub);margin-top:18px}
+/* スマホの中の共通部品 */
+#scr h2{font-size:21px;line-height:1.4;font-weight:700;margin:2px 0 4px}
+#scr .lead{color:var(--blue);margin:0 0 12px}
+.sec{margin:0 0 12px;padding:12px 14px;border:1px solid var(--gray);border-radius:8px;background:var(--white)}
+.st{font-weight:700;font-size:15px;margin:0 0 6px}
+.small{font-size:14px;color:var(--mid);line-height:1.5;margin:8px 0 0}
+.btn-p,.btn-s{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin:14px 0 4px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
+.btn-p{border:0;background:var(--navy);color:var(--white)}
+.btn-p:disabled{background:var(--lg);cursor:default}
+.btn-s{border:1.5px solid var(--navy);background:var(--white);color:var(--navy)}
+.btn-s.pressed{background:var(--tint)}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:14px;line-height:1.35;font-weight:500;white-space:nowrap;font-style:normal}
+.t-ok{background:var(--tint);color:var(--navy)}
+.t-new{background:var(--org);color:var(--white);font-weight:700}
+.t-chk{background:var(--white);color:var(--blue);border:1px dashed var(--blue)}
+.ok{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;margin:6px 0 0}
+.ck{position:relative;flex:none;width:18px;height:18px;border-radius:50%;background:var(--navy)}
+.ck::after{content:"";position:absolute;left:6px;top:3px;width:5px;height:9px;border:solid var(--white);border-width:0 2px 2px 0;transform:rotate(45deg)}
 
-/* faq */
-.faq{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:40px}
-details{border-bottom:1px solid var(--line);padding:4px 0}
-summary{cursor:pointer;font-weight:700;padding:14px 0;min-height:44px;list-style:none;display:flex;justify-content:space-between;gap:16px}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";color:var(--gold);font-size:22px;line-height:1}
-details[open] summary::after{content:"−"}
-details p{padding:0 0 16px;color:var(--sub)}
+/* 場面0 */
+.ad{font-size:14px;color:var(--mid);padding:0 0 8px;margin:0 0 14px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:8px;font-size:17px;margin:0 0 8px}
+.brand svg{width:24px;height:24px}
+.hero{font-size:23px;line-height:1.45;font-weight:700;margin:0 0 14px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 14px}
+.three li{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:1px solid var(--gray);border-radius:8px;font-size:14px;font-weight:700;line-height:1.35;text-align:center}
+.three .k{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:var(--navy);color:var(--white);font-size:15px}
+.ticks li{position:relative;padding-left:22px;margin:6px 0;line-height:1.5}
+.ticks li::before{content:"";position:absolute;left:4px;top:.32em;width:6px;height:11px;border:solid var(--navy);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.price{display:grid;gap:2px;padding:12px 14px;border-radius:8px;background:var(--tint)}
+.price .pv{font-size:24px;font-weight:700;line-height:1.3}
+.price .small{margin:0}
 
-/* partner */
-.partner{background:var(--deep2);color:#fff}
-.partner .lead{color:#d9d2ea}
-.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:32px}
-.pgrid div{border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:22px}
-.pgrid h3{font-size:18px;margin-bottom:8px}
-.pgrid p{color:#d9d2ea;font-size:15px}
+/* 場面1 */
+.fl{display:grid;gap:2px;margin:0 0 8px}
+.fl>span{font-size:14px;color:var(--mid)}
+.fl>b{display:block;padding:7px 10px;border:1px solid var(--gray);border-radius:6px;font-weight:500}
+.fl2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ppl li{padding:6px 0;border-bottom:1px solid var(--line)}
+.ppl li:last-child{border-bottom:0}
+.cks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:6px}
+.cb{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 10px;border:1px solid var(--gray);border-radius:6px;font-size:14px;line-height:1.35;cursor:pointer}
+.cb input{flex:none;width:18px;height:18px;margin:0;accent-color:var(--navy)}
 
-/* form */
-.apply{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:40px;align-items:start}
-form{display:grid;gap:16px;background:var(--pale);padding:26px;border-radius:14px}
-label{display:grid;gap:6px;font-size:14px;font-weight:700}
-label span{font-weight:400;color:var(--sub)}
-input,select{font:inherit;font-size:16px;min-height:46px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
-.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
-.chk{display:flex;gap:10px;align-items:flex-start;font-weight:400}
-.chk input{width:20px;min-height:20px;height:20px;margin-top:4px;flex:none}
-#done{display:none;padding:14px 16px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
-.contact p{margin-top:10px}
-.contact .tel{font-family:"Zen Old Mincho",serif;font-size:28px;font-weight:700;white-space:nowrap}
+/* 場面2 */
+.frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fr{display:flex;flex-direction:column;min-height:150px;padding:10px;border:1.5px dashed var(--lg);border-radius:8px}
+.fr.has{border-style:solid;border-color:var(--blue)}
+.fr b{font-size:15px;line-height:1.35}
+.fr small{font-size:14px;line-height:1.35;color:var(--mid)}
+.ths{display:flex;flex-wrap:wrap;gap:8px 7px;margin:8px 0 6px;min-height:52px}
+.th{position:relative;width:34px;height:44px;border:1px solid var(--lg);border-radius:4px;background:var(--white);opacity:0;transform:scale(.8);transition:opacity .25s,transform .25s}
+.th.in{opacity:1;transform:none}
+.th em{position:absolute;right:-6px;bottom:-7px;padding:1px 4px;border-radius:4px;background:var(--navy);color:var(--white);font-size:14px;line-height:1.1;font-weight:700;font-style:normal}
+.k-ba{background:linear-gradient(var(--navy),var(--navy)) 0 0/100% 7px no-repeat,repeating-linear-gradient(transparent 0 5px,var(--gray) 5px 6px) 4px 11px/calc(100% - 8px) 28px no-repeat,var(--white)}
+.k-bb{background:linear-gradient(var(--blue),var(--blue)) 0 0/100% 7px no-repeat,repeating-linear-gradient(transparent 0 5px,var(--gray) 5px 6px) 4px 11px/calc(100% - 8px) 28px no-repeat,var(--white)}
+.k-st{background:linear-gradient(var(--lg),var(--lg)) 4px 4px/14px 5px no-repeat,repeating-linear-gradient(transparent 0 4px,var(--gray) 4px 5px) 4px 12px/calc(100% - 8px) 28px no-repeat,var(--white)}
+.k-ml{background:linear-gradient(var(--tint),var(--tint)) 4px 6px/18px 10px no-repeat,repeating-linear-gradient(transparent 0 5px,var(--gray) 5px 6px) 4px 22px/calc(100% - 8px) 18px no-repeat,var(--white)}
+.k-pc{background:linear-gradient(var(--white),var(--white)) padding-box,repeating-linear-gradient(transparent 0 5px,var(--gray) 5px 6px) 4px 14px/calc(100% - 8px) 24px no-repeat;border-style:dashed}
+.k-cd{background:linear-gradient(var(--blue),var(--blue)) 3px 8px/calc(100% - 6px) 3px no-repeat,linear-gradient(var(--tint),var(--tint)) 3px 14px/12px 14px no-repeat,repeating-linear-gradient(transparent 0 5px,var(--gray) 5px 6px) 18px 14px/12px 18px no-repeat,var(--white)}
+.fr .cnt{margin-top:auto;font-size:14px;color:var(--mid)}
+.tot{font-size:14px;color:var(--mid);text-align:center;margin:2px 0 10px}
+.tot.full{color:var(--navy);font-weight:700}
+.warn{padding:10px 12px;border-radius:8px;background:var(--tint);font-size:14px;line-height:1.55}
 
-footer{background:var(--deep2);color:#cfc6e3;font-size:14px}
-footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-footer .logo{color:#fff}
+/* 場面3 */
+.pb{margin:0 0 12px;border:1px solid var(--gray);border-radius:8px;overflow:hidden}
+.pbh{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;background:var(--navy);color:var(--white);font-size:14px}
+.rh,.r{display:grid;grid-template-columns:40px minmax(0,1fr) 58px 64px;column-gap:6px;padding:4px 10px;font-size:14px;line-height:1.45}
+.rh{background:var(--tint);color:var(--mid)}
+.rh .a,.r .a{text-align:right;white-space:nowrap}
+.r{border-top:1px solid var(--line);transition:background .25s}
+.r .m{overflow-wrap:anywhere}
+.res{grid-column:2/-1;display:flex;align-items:center;gap:6px;min-height:26px;color:var(--blue);opacity:0;transition:opacity .25s}
+.res span{line-height:1.35}
+.r.read .res{opacity:1}
+.r.on{background:var(--tint);box-shadow:inset 3px 0 0 var(--navy)}
+.r.new.read{background:var(--orgt)}
+.r.new.on{box-shadow:inset 3px 0 0 var(--org)}
+.pbsep{padding:4px 10px;font-size:14px;color:var(--mid);border-top:1px dashed var(--lg)}
+.cnt3{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 10px}
+.cnt3>div{padding:9px 12px;border-radius:8px;background:var(--navy);color:var(--white)}
+.cnt3>div.nw{padding:7px 10px;background:var(--white);color:var(--org);border:2px solid var(--org)}
+.cnt3 .cl{display:block;font-size:14px;line-height:1.35}
+.cnt3 b{font-size:30px;line-height:1.15}
+.cnt3 b small{font-size:15px;margin-left:2px}
+.nf{margin:0 0 8px;padding:7px 10px;border:1px solid var(--gray);border-left:4px solid var(--org);border-radius:6px;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s}
+.nf.in{opacity:1;transform:none}
+.nf .t{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;line-height:1.4}
+.nf p{font-size:14px;line-height:1.45;margin-top:2px}
+.nf .ev{color:var(--mid)}
+.inq{margin:12px 0 0}
+.iq{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.iq .rs{grid-column:1/-1;min-height:22px;font-size:14px;font-weight:700;opacity:0;transition:opacity .3s}
+.iq.done .rs{opacity:1}
+.s-prep{background:var(--tint);color:var(--blue)}
+.s-wait{background:var(--white);color:var(--blue);border:1px solid var(--blue)}
+.s-done{background:var(--navy);color:var(--white)}
 
-@media(max-width:900px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.plans,.pgrid{grid-template-columns:minmax(0,1fr)}.faq,.apply{grid-template-columns:minmax(0,1fr);gap:24px}}
-@media(max-width:720px){.pic{grid-template-columns:minmax(0,1fr)}.arrow{height:52px}.arrow svg{transform:rotate(90deg)}nav{margin-left:0;width:100%}}
-@media(max-width:600px){.two,.row2{grid-template-columns:minmax(0,1fr)}.steps{grid-template-columns:minmax(0,1fr)}nav a:not(.cta){display:none}nav{width:auto;margin-left:auto}}
+/* 場面4 */
+.sum{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--navy);color:var(--white)}
+.sum .big{font-size:34px;font-weight:700;line-height:1}
+.sum .big small{font-size:16px;margin-left:2px}
+.sum p{font-size:14px;line-height:1.4}
+.sum ul{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:15px}
+.sum ul b{font-size:20px;margin:0 1px 0 4px}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:12px 0 0;border-bottom:2px solid var(--navy)}
+.tabs button{min-height:52px;padding:4px 2px;border:1px solid var(--gray);border-bottom:0;border-radius:6px 6px 0 0;background:var(--tint);color:var(--blue);font-size:14px;font-weight:700;line-height:1.3;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--navy);border-color:var(--navy);color:var(--white)}
+.tabs button span{display:block;font-weight:500}
+.tnote{margin:10px 0 2px;padding:8px 10px;border-radius:6px;background:var(--tint);font-size:14px;line-height:1.5;color:var(--blue)}
+.cmp{margin:12px 0 6px;padding:10px 12px;border:1.5px solid var(--navy);border-radius:8px}
+.cmp .cap{font-size:14px;color:var(--mid)}
+.cmp .sen{font-size:15px;font-weight:700;line-height:1.5;margin:4px 0 0}
+.cmp .sen b{font-size:26px;margin:0 2px;vertical-align:-2px}
+.cells{display:grid;grid-template-columns:repeat(19,minmax(0,1fr));gap:3px;margin:8px 0}
+.cells i{aspect-ratio:1;border-radius:2px;background:var(--gray)}
+.cells i.on{background:var(--navy)}
+.more{min-height:44px;width:100%;margin:2px 0 0;border:1px solid var(--gray);border-radius:6px;background:var(--white);color:var(--blue);font-size:14px;font-weight:700;cursor:pointer}
+.grey{margin:8px 0 0;padding:8px 10px;border-radius:6px;background:var(--tint);color:var(--mid);font-size:14px;line-height:1.6}
+.grey li{display:inline}
+.grey li+li::before{content:"、"}
+.grp{margin:14px 0 2px;font-size:14px;font-weight:700;color:var(--mid)}
+.its li.it{border-bottom:1px solid var(--line)}
+.ith{display:grid;grid-template-columns:minmax(0,1fr) auto 16px;gap:8px;align-items:center;width:100%;min-height:52px;padding:8px 0;border:0;background:none;text-align:left;cursor:pointer}
+.ith .nm b{display:block;font-size:15px;line-height:1.4}
+.ith .nm small{display:block;font-size:14px;line-height:1.4;color:var(--mid)}
+.ith .tags{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.pm{position:relative;width:14px;height:14px}
+.pm::before,.pm::after{content:"";position:absolute;left:0;top:6px;width:14px;height:2px;background:var(--blue)}
+.pm::after{transform:rotate(90deg)}
+.it.open .pm::after{display:none}
+.itd{display:none;margin:0 0 10px;padding:10px 12px;border-radius:8px;background:var(--tint)}
+.it.open .itd{display:grid;grid-template-columns:6.4em minmax(0,1fr);gap:4px 10px}
+.itd dt{font-size:14px;font-weight:700;color:var(--mid)}
+.itd dd{font-size:14px;line-height:1.5}
+.visit{margin:14px 0 0;padding:12px 14px;border-radius:8px;border:1px solid var(--blue)}
+.visit li{position:relative;padding-left:14px;margin:6px 0;font-size:14px;line-height:1.55}
+.visit li::before{content:"";position:absolute;left:2px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--navy)}
+.visit li:first-child{font-size:15px;font-weight:700}
+
+/* 場面5 */
+.bds{margin:0 0 12px;border:1px solid var(--gray);border-radius:8px;overflow:hidden}
+.bd{padding:9px 12px;border-top:1px solid var(--line)}
+.bd:first-child{border-top:0}
+.bd .h{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.bd .h b{display:block;line-height:1.4}
+.bd .h small{display:block;font-size:14px;color:var(--mid);line-height:1.4}
+.bd.open{background:var(--tint)}
+.paper{margin:10px 0 4px;padding:12px;border:1px solid var(--lg);border-radius:6px;background:var(--white);box-shadow:0 1px 2px rgba(2,37,60,.08)}
+.pt{text-align:center;font-size:17px;font-weight:700;letter-spacing:.25em}
+.pto{font-size:14px;color:var(--mid);text-align:center;margin:0 0 8px}
+.pf{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.pf .k{grid-column:1/-1;font-size:14px;color:var(--mid)}
+.pf .v{padding:3px 8px;border-radius:4px;background:var(--ai);font-weight:700;line-height:1.45}
+.pf .v.blank{background:none;border:1px dashed var(--lg);font-weight:500;color:var(--mid)}
+.pf .fr2{font-size:14px;color:var(--mid);white-space:nowrap}
+.legend{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--mid);margin:8px 0 0}
+.legend i{width:16px;height:12px;border-radius:3px;background:var(--ai)}
+.att li{position:relative;padding-left:14px;margin:3px 0}
+.att li::before{content:"";position:absolute;left:2px;top:.66em;width:5px;height:5px;border-radius:50%;background:var(--navy)}
+.same{margin:6px 0 0;padding:6px 10px;border-radius:6px;background:var(--tint);font-size:14px;font-weight:700}
+.cbx{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;border:1.5px solid var(--navy);border-radius:8px;font-weight:700;cursor:pointer}
+.cbx input{flex:none;width:20px;height:20px;margin:0;accent-color:var(--navy)}
+.done-msg{display:none;margin:8px 0 0}
+.done-msg.show{display:flex}
+
+/* 場面6 */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.chips span{padding:4px 10px;border-radius:6px;background:var(--navy);color:var(--white);font-size:14px;font-weight:700}
+.flow3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:12px 0}
+.flow3 li{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border:1px solid var(--gray);border-radius:8px;text-align:center;font-size:14px;line-height:1.4}
+.flow3 svg{width:56px;height:44px}
+.flow3 .k{display:grid;place-items:center;width:24px;height:24px;border-radius:6px;background:var(--navy);color:var(--white);font-size:14px;font-weight:700}
+.list12{font-size:14px;line-height:1.6;color:var(--blue);margin:4px 0 0}
+
+/* 場面7 */
+.bar7{display:flex;height:14px;margin:10px 0 8px;border-radius:4px;overflow:hidden;background:var(--white);border:1px solid var(--gray)}
+.bar7 i{display:block;height:100%}
+.g-done{background:var(--navy)}
+.g-doing{background:var(--blue)}
+.g-wait{background:var(--lg)}
+.g-todo{background:var(--gray)}
+.g-ask{background:var(--white);box-shadow:inset 0 0 0 2px var(--navy)}
+.lg7{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 10px;font-size:14px}
+.lg7 li{display:flex;align-items:center;gap:6px}
+.lg7 .sw{flex:none;width:12px;height:12px;border-radius:3px}
+.lg7 b{font-size:16px;margin-left:auto}
+.ask{margin:12px 0;padding:10px 12px;border:2px solid var(--navy);border-radius:8px}
+.ask p{font-size:14px;line-height:1.5}
+.dl7{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 4px;font-size:14px;color:var(--mid)}
+.dl7 .pd{margin:0}
+.pr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.pr .nm b{font-size:15px;line-height:1.35}
+.pr .nm small{font-size:14px;color:var(--mid);margin-left:6px}
+.pr .lg{grid-column:1/-1;font-size:14px;line-height:1.45;color:var(--blue)}
+.pr .rt{display:flex;align-items:center;gap:8px}
+.pd{display:flex;gap:4px;align-items:center}
+.pd i{display:block;width:11px;height:11px;border-radius:50%;border:2px solid var(--lg);background:var(--white)}
+.pd i.on{border-color:var(--navy);background:var(--navy)}
+.c-done{background:var(--navy);color:var(--white)}
+.c-doing{background:var(--blue);color:var(--white)}
+.c-wait{background:var(--white);color:var(--blue);border:1px solid var(--blue)}
+.c-todo{background:var(--tint);color:var(--navy)}
+.c-ask{background:var(--white);color:var(--navy);border:2px solid var(--navy);font-weight:700}
+.ddl{margin:14px 0 0}
+.ddl li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.45}
+.ddl li b{font-size:15px}
+.ddl .rm{grid-column:2;grid-row:1/span 2;align-self:center;font-weight:700;white-space:nowrap}
+.hand{margin:14px 0 0;padding:12px 14px;border:1.5px solid var(--blue);border-radius:8px}
+.hand p{font-size:14px;line-height:1.55}
+.ntc{margin:12px 0 0;padding:8px 12px;border-radius:6px;background:var(--tint);font-size:14px;line-height:1.5}
+.ntc b{display:block;font-size:14px;color:var(--mid);font-weight:500}
+.fin{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0}
+.fin>div{padding:10px 12px;border-radius:8px}
+.fin .self{border:1px solid var(--gray);color:var(--blue)}
+.fin .ours{background:var(--navy);color:var(--white)}
+.fin p{font-size:14px;line-height:1.55}
+.fin .st{font-size:14px}
+.fin ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 4px;margin-top:4px}
+.fin li{font-size:14px;line-height:1.25}
+.fin li b{display:block;font-size:24px}
+.fin li b small{font-size:14px;margin-left:1px}
+
+@media (prefers-reduced-motion:reduce){
+  #scr.fade{animation:none}
+  .th,.res,.r,.nf,.iq .rs{transition:none}
+}
+
+/* 幅が狭い画面：スマホの画面を全面に、解説は下に畳む */
+@media (max-width:899px){
+  #app{height:100dvh}
+  .top{flex-wrap:wrap;gap:8px 12px;padding:8px 12px}
+  .logo{font-size:16px}
+  .steps{order:3;width:100%;margin:0;justify-content:space-between}
+  .steps li{padding:3px 6px 3px 3px;font-size:14px}
+  .steps li:not(.now) .lb{display:none}
+  .steps li+li{margin-left:10px}
+  .steps li+li::before{left:-9px;width:8px}
+  .demo{margin-left:auto;font-size:13px;padding:2px 8px}
+  .stage{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:0;padding:0;align-items:stretch}
+  .phone{align-self:stretch;width:auto;height:auto;max-height:none;min-height:0;padding:0;border-radius:0;background:none;box-shadow:none}
+  .screen{border-radius:0;grid-template-rows:auto minmax(0,1fr)}
+  .sbar{display:none}
+  .notes{align-self:stretch;max-width:none;padding:0 16px;background:var(--white);border-top:1px solid var(--gray)}
+  .ntog{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:0;border:0;background:none;color:var(--navy);font-size:16px;font-weight:700;cursor:pointer}
+  .ntog i{position:relative;width:14px;height:14px}
+  .ntog i::before,.ntog i::after{content:"";position:absolute;left:0;top:6px;width:14px;height:2px;background:var(--navy)}
+  .ntog i::after{transform:rotate(90deg)}
+  .notes.open .ntog i::after{display:none}
+  .nb{display:none}
+  .notes.open .nb{display:block;max-height:44vh;overflow-y:auto;padding:0 0 14px}
+  .scn{margin:4px 0 10px}
+  .say{font-size:24px;margin:0 0 16px}
+  .flow{grid-template-columns:minmax(0,1fr)}
+  .ctrl{gap:4px;padding:6px 8px}
+  .hint,#auto{display:none}
+  .b{padding:0 12px}
+  .b.p{min-width:88px}
+  .dot{width:22px}
+}
 </style>
 </head>
 <body>
-<header>
-  <div class="bar">
-    <a class="logo" href="#top"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#c58b2e" stroke-width="1.6" stroke-linecap="round"/></svg>あとのこと</a>
-    <nav aria-label="ページ内">
-      <a href="#what">できること</a><a href="#flow">流れ</a><a href="#price">料金</a><a href="#faq">よくある質問</a><a href="#partner">葬儀社の方へ</a><a class="cta" href="#apply">お申し込み</a>
-    </nav>
-  </div>
-</header>
-
-<section class="band hero" id="top">
-  <div class="wrap">
-    <h1>葬儀のあとの手続きを、この家だけの一覧に。</h1>
-    <p class="lead">故人の通帳やカードの明細から、手続きが必要な相手先を洗い出し、書類をそろえ、出す順番と期限まで一緒に管理します。平日に何度も窓口へ通わなくて済むようにするサービスです。</p>
-    <div class="acts"><a class="btn gold" href="#apply">無料の簡易一覧を受け取る</a><a class="btn line" href="#flow">流れを見る</a></div>
-
-    <div class="pic" aria-label="明細から手続き一覧ができるまでの例">
-      <div class="card stmt">
-        <h3>故人の通帳の明細 <small>2026年9月〜10月</small></h3>
-        <div class="row hit"><span>09/27</span><span>デンキリョウキン</span><span>8,412</span></div>
-        <div class="row hit"><span>09/27</span><span>ガスリョウキン</span><span>4,980</span></div>
-        <div class="row"><span>09/30</span><span>ATM ヒキダシ</span><span>30,000</span></div>
-        <div class="row hit"><span>10/01</span><span>セイメイホケン</span><span>12,600</span></div>
-        <div class="row hit"><span>10/05</span><span>ケイタイ ツウワリョウ</span><span>6,270</span></div>
-        <div class="row hit"><span>10/10</span><span>カード ゴリヨウブン</span><span>21,358</span></div>
-        <div class="row hit"><span>10/15</span><span>ドウガハイシン</span><span>990</span></div>
-      </div>
-      <div class="arrow" aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="21" fill="#c58b2e"/><path d="M14 22h15M23 15l7 7-7 7" fill="none" stroke="#1c1405" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="card list">
-        <h3>山本家の手続き一覧 <small>6件のうち3件が完了</small></h3>
-        <div class="item"><span class="box on"></span><span><b>電力会社</b><i>名義の変更</i></span><span class="chip done">完了</span></div>
-        <div class="item"><span class="box on"></span><span><b>携帯電話</b><i>解約と端末代の精算</i></span><span class="chip done">完了</span></div>
-        <div class="item"><span class="box on"></span><span><b>動画配信</b><i>解約</i></span><span class="chip done">完了</span></div>
-        <div class="item"><span class="box"></span><span><b>生命保険</b><i>死亡保険金の請求　期限は3年</i></span><span class="chip wait">書類をそろえています</span></div>
-        <div class="item"><span class="box"></span><span><b>クレジットカード</b><i>解約と残高の確認</i></span><span class="chip wait">相手先の返事待ち</span></div>
-        <div class="item"><span class="box"></span><span><b>ガス会社</b><i>名義の変更</i></span><span class="chip">これから</span></div>
-        <div class="foot"><span>次にやること：保険会社の請求書に記入して返送</span></div>
-        <div class="meter"><div></div></div>
+<div id="app">
+  <header class="top">
+    <div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#FFFFFE" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#9AA8B1" stroke-width="1.6" stroke-linecap="round"/></svg><span id="svc">あとのこと</span></div>
+    <ol class="steps" id="steps" aria-label="手続きの進み具合"></ol>
+    <p class="demo">デモ画面（架空のデータ）</p>
+  </header>
+  <main class="stage">
+    <div class="phone" aria-label="遺族が見る画面">
+      <div class="screen">
+        <div class="sbar"><span class="num">10:24</span><span class="bat" aria-hidden="true"></span></div>
+        <div class="abar"><div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#02253C" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#355163" stroke-width="1.6" stroke-linecap="round"/></svg><span id="svc2">あとのこと</span></div><span class="who" id="who"></span></div>
+        <div id="scr" tabindex="-1"></div>
       </div>
     </div>
-    <p class="sample">図の明細と一覧は説明のための例です。</p>
-  </div>
-</section>
-
-<section class="band" id="what">
-  <div class="wrap">
-    <h2>どんな手続きがあるかは、冊子に載っています。<br>この家の相手先がどこかは、載っていません。</h2>
-    <p class="lead">区役所の冊子には、役所の手続きと「金融機関」「クレジット会社」といった種類が並びます。実際にどの銀行、どの保険、どのサービスと契約していたかは、家ごとに違います。そこを一緒に探して、出すところまで進めます。</p>
-    <div class="two">
-      <div class="pane">
-        <span class="tag">区役所の冊子でわかること</span>
-        <h3>手続きの種類</h3>
-        <ul><li>死亡届、年金、健康保険など役所の手続き</li><li>銀行やカード会社にも連絡が必要だということ</li><li>窓口の場所と受付時間</li></ul>
-      </div>
-      <div class="pane mine">
-        <span class="tag">あとのことでわかること</span>
-        <h3>この家の相手先と、出すもの</h3>
-        <ul><li>明細から見つけた、契約していた会社の一覧</li><li>相手先ごとに必要な書類と、その入手先</li><li>出す順番と期限、いまどこまで進んだか</li></ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="band" id="flow" style="padding-top:0">
-  <div class="wrap">
-    <h2>お申し込みから完了まで</h2>
-    <ol class="steps">
-      <li><div class="n">1</div><h3>QRから申し込む</h3><p>葬儀社からお渡しした案内のQR、またはこのページから。電話や訪問でのご案内はしていません。</p></li>
-      <li><div class="n">2</div><h3>明細を送る</h3><p>通帳やカードの明細を、スマートフォンで撮って送っていただきます。郵送でもかまいません。</p></li>
-      <li><div class="n">3</div><h3>一覧と書類が届く</h3><p>この家の相手先の一覧と、相手先ごとの書類一式、記入の見本をお届けします。</p></li>
-      <li><div class="n">4</div><h3>出して、終わらせる</h3><p>出す順番と期限を管理し、相手先への提出を取り次ぎます。進み具合はいつでも一覧で見られます。</p></li>
-    </ol>
-    <p class="note">書類はご遺族のお名前で出します。不動産の相続登記と相続税の申告は、提携する司法書士・税理士をご紹介します（費用は別になります）。</p>
-  </div>
-</section>
-
-<section class="band price" id="price">
-  <div class="wrap">
-    <h2>料金</h2>
-    <p class="lead">まずは無料の簡易一覧で、どのくらいの手続きがあるかを確かめてください。</p>
-    <div class="plans">
-      <div class="plan">
-        <h3>簡易一覧</h3>
-        <div class="yen">0円</div>
-        <ul><li>明細から見つけた相手先の一覧</li><li>相手先ごとの手続きの種類</li></ul>
-        <p class="who">まず全体を知りたい方に</p>
-      </div>
-      <div class="plan main">
-        <span class="badge">いちばん多いご相談</span>
-        <h3>基本</h3>
-        <div class="yen">50,000円 <small>税込・1家族</small></div>
-        <ul><li>簡易一覧の内容すべて</li><li>相手先ごとの書類一式と記入の見本</li><li>提出の取り次ぎ</li><li>進み具合の管理と期限のお知らせ</li></ul>
-        <p class="who">平日に窓口へ行く時間がとれない方に</p>
-      </div>
-      <div class="plan">
-        <h3>手厚い</h3>
-        <div class="yen">100,000円〜 <small>税込</small></div>
-        <ul><li>基本の内容すべて</li><li>相手先が多い家、遠方に住む家の対応</li><li>司法書士・税理士との日程調整</li></ul>
-        <p class="who">相手先が多い方、離れて暮らす方に</p>
-      </div>
-    </div>
-    <p class="small">料金は検討中の案です。</p>
-  </div>
-</section>
-
-<section class="band" id="faq">
-  <div class="wrap faq">
-    <div><h2>よくある質問</h2><p class="lead">ほかにも気になることがあれば、お問い合わせからどうぞ。</p></div>
-    <div>
-      <details open><summary>行政書士や弁護士に頼むのと、何が違いますか。</summary><p>専門家は、相続人や財産の調査、遺産の分け方など、法律の判断が要る部分を担います。あとのことは、明細から相手先を見つけ、書類をそろえて出すまでの段取りを受け持ちます。法律の判断が要る場面では、提携する専門家をご紹介します。</p></details>
-      <details><summary>自分で窓口に行く必要はありますか。</summary><p>多くの相手先は郵送で手続きできます。窓口でしか受け付けない相手先がある場合は、一覧の中でお知らせし、行く回数がいちばん少なくなる順番をご提案します。</p></details>
-      <details><summary>明細を預けるのが心配です。</summary><p>お預かりした明細は、手続きの目的にだけ使い、完了後に削除します。葬儀社に、ご遺族の情報を当社へ渡していただくことはありません。お申し込みは、ご遺族ご自身からだけ受け付けます。</p></details>
-      <details><summary>葬儀社から案内をもらいました。葬儀社とはどういう関係ですか。</summary><p>あとのことは、提携する葬儀社に案内をお渡しいただいている別の会社です。案内は当社の広告です。お申し込みがあった場合、当社から葬儀社に紹介料をお支払いしています。</p></details>
-      <details><summary>どのくらいで終わりますか。</summary><p>相手先の数によりますが、一覧は明細が届いてから1週間ほどでお届けします。相手先からの返事を待つ手続きもあるため、全体ではそれより長くかかります。</p></details>
-    </div>
-  </div>
-</section>
-
-<section class="band partner" id="partner">
-  <div class="wrap">
-    <h2>葬儀社の方へ</h2>
-    <p class="lead">区の冊子をお渡しするときに、案内を1枚添えていただくだけです。その後のやり取りはすべて当社が行います。</p>
-    <div class="pgrid">
-      <div><h3>手間はふえません</h3><p>ご遺族はQRから自分で申し込みます。ご担当者が説明したり、情報を取り次いだりする必要はありません。</p></div>
-      <div><h3>葬儀のあとも頼られる</h3><p>手続きの一覧の案内は、ご遺族が葬儀社に期待していることの一つです。法要や次のご依頼につながる接点になります。</p></div>
-      <div><h3>申し込みごとに紹介料</h3><p>お申し込み1件ごとに紹介料をお支払いします。案内は当社の広告と分かる形でお作りします。</p></div>
-    </div>
-    <div class="acts"><a class="btn gold" href="#apply">提携について問い合わせる</a></div>
-  </div>
-</section>
-
-<section class="band" id="apply">
-  <div class="wrap apply">
-    <div class="contact">
-      <h2>お申し込み・お問い合わせ</h2>
-      <p class="lead">無料の簡易一覧のお申し込みから始められます。こちらからお電話でご案内することはありません。</p>
-      <p>お電話でのご相談</p>
-      <p class="tel">03-0000-0000</p>
-      <p style="color:var(--sub);font-size:14px">平日 10:00〜18:00　メール info@example.jp</p>
-    </div>
-    <form id="f" novalidate>
-      <div class="row2">
-        <label for="nm">お名前<input id="nm" name="nm" autocomplete="name" placeholder="山本 花子"></label>
-        <label for="rel">故人とのご関係<select id="rel" name="rel"><option>配偶者</option><option selected>子</option><option>きょうだい</option><option>そのほか</option></select></label>
-      </div>
-      <label for="ml">メールアドレス<input id="ml" name="ml" type="email" autocomplete="email" placeholder="hanako@example.jp"></label>
-      <div class="row2">
-        <label for="pl">ご希望<select id="pl" name="pl"><option>無料の簡易一覧</option><option>基本</option><option>手厚い</option><option>葬儀社として提携の相談</option></select></label>
-        <label for="fh">葬儀社名 <span>任意</span><input id="fh" name="fh" placeholder="案内を受け取った葬儀社"></label>
-      </div>
-      <label class="chk" for="ok"><input id="ok" type="checkbox">個人情報の取り扱いに同意します</label>
-      <button class="btn gold" type="submit">送信する</button>
-      <p id="done" role="status"></p>
-    </form>
-  </div>
-</section>
-
-<footer class="band" style="padding-block:32px">
-  <div class="wrap">
-    <a class="logo" href="#top"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#c58b2e" stroke-width="1.6" stroke-linecap="round"/></svg>あとのこと</a>
-    <p>このページは検討中のサービスの試作です。サービス名、料金、連絡先は仮のものです。</p>
-  </div>
-</footer>
+    <section class="notes" id="notes" aria-live="polite">
+      <button class="ntog" id="ntog" aria-expanded="false" aria-controls="nb">この場面の解説<i></i></button>
+      <div class="nb" id="nb"></div>
+    </section>
+  </main>
+  <footer class="ctrl">
+    <div class="pbar" id="pbar"></div>
+    <button class="b t" id="home">最初から</button>
+    <button class="b" id="prev">戻る</button>
+    <div class="dots" id="dots"></div>
+    <span class="hint">左右の矢印キーでも動きます</span>
+    <button class="b p" id="next">次へ</button>
+    <button class="b" id="auto" aria-pressed="false">60秒で通す</button>
+  </footer>
+</div>
 
 <script>
 {
-  const f=document.getElementById('f'),d=document.getElementById('done');
-  f.addEventListener('submit',e=>{
-    e.preventDefault();
-    const nm=document.getElementById('nm').value.trim(),ml=document.getElementById('ml').value.trim(),ok=document.getElementById('ok').checked;
-    d.style.display='block';
-    if(!nm||!ml){d.textContent='お名前とメールアドレスを入力してください。';return}
-    if(!ok){d.textContent='個人情報の取り扱いへの同意にチェックを入れてください。';return}
-    d.textContent=nm+' 様、ありがとうございます。試作のページのため、実際には送信されていません。';
+  const D = DATA, T = TEXT;
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const scr = $('#scr'), nb = $('#nb'), notesEl = $('#notes'), app = $('#app');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const items = D.items;
+  const N = T.scenes.length;
+  const TABS = [ { id: 'money', name: 'お金と財産' }, { id: 'life', name: '暮らしの契約' }, { id: 'office', name: '役所と年金' } ];
+  const PROG = [ ['完了', 'done'], ['進行中', 'doing'], ['通知待ち', 'wait'], ['これから', 'todo'], ['確認のお願い', 'ask'] ];
+  const progKey = p => (PROG.find(x => x[0] === p) || ['', 'todo'])[1];
+  const byTab = id => items.filter(x => x.tab === id);
+  const newCount = items.filter(x => x.found === '新たに発見').length;
+  const kuItems = items.filter(x => x.place === '区役所');
+  const cancels = items.filter(x => x.cancel);
+
+  let cur = 0, epoch = 0, timers = [], autoTimers = [], autoOn = false;
+  const st = { tab: 'office', open: new Set([22]), more: false, conf: false, agree: false, asked: false };
+
+  const later = (fn, ms) => { const e = epoch; timers.push(setTimeout(() => { if (e === epoch) fn(); }, ms)); };
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+  const logo = (a, b) => '<svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="' + a + '" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="' + b + '" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+  function topIn(el) { let y = 0, n = el; while (n && n !== scr) { y += n.offsetTop; n = n.offsetParent; } return n === scr ? y : null; }
+  function scrollToY(y) { scr.scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' }); }
+  function follow(el) {
+    const y = topIn(el); if (y === null) return;
+    const h = scr.clientHeight;
+    if (y < scr.scrollTop + 6 || y + el.offsetHeight > scr.scrollTop + h - 12) scrollToY(y - Math.round(h * 0.3));
+  }
+
+  const foundTag = x => '<span class="tag ' + (x.found === '新たに発見' ? 't-new' : x.found === '確認中' ? 't-chk' : 't-ok') + '">' + x.found + '</span>' + (x.foundNote ? '<span class="tag t-chk">' + x.foundNote + '</span>' : '');
+  const progChip = p => '<span class="tag c-' + progKey(p) + '">' + p + '</span>';
+  const dotsOf = (n, p) => '<span class="pd" role="img" aria-label="' + p + '"><i' + (n > 0 ? ' class="on"' : '') + '></i><i' + (n > 1 ? ' class="on"' : '') + '></i><i' + (n > 2 ? ' class="on"' : '') + '></i></span>';
+  const daysTo = iso => Math.round((Date.parse(iso + 'T00:00:00Z') - Date.parse(D.today + 'T00:00:00Z')) / 86400000);
+
+  function detail(x) {
+    const docs = x.docs || (x.cancel ? '解約の申し込み、死亡の分かる書類の写し' : '');
+    const next = x.next || (x.cancel ? '解約の申し込みに同意します' : x.corner ? '区役所へ行く日に、おくやみコーナーで出します' : '');
+    const who = x.who || (x.cancel ? '当社が申し込みを取り次ぎます。ご本人は同意するだけです' : x.place === '区役所' ? D.heirs[0].short + 'さんが区役所の窓口で出します（' + D.officeDay + '）' : '');
+    const rows = [['根拠', x.src], ['必要な書類', docs], ['次にやること', next], ['誰がやるか', who]];
+    if (x.limit) rows.push(['期限', x.limit]);
+    if (x.desk) rows.push(['窓口', x.desk + (x.corner ? '。2階のおくやみコーナーでまとめて出せます' : '')]);
+    return '<dl class="itd">' + rows.filter(r => r[1]).map(r => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('') + '</dl>';
+  }
+  function itemRow(x) {
+    const sub = x.tab === 'office' ? x.place : x.what;
+    return '<li class="it' + (st.open.has(x.no) ? ' open' : '') + '" data-no="' + x.no + '"><button class="ith" aria-expanded="' + st.open.has(x.no) + '"><span class="nm"><b>' + x.name + '</b><small>' + sub + '</small></span><span class="tags">' + foundTag(x) + '</span><span class="pm" aria-hidden="true"></span></button>' + detail(x) + '</li>';
+  }
+
+  /* ---------- 場面ごとの画面 ---------- */
+  const S = [];
+
+  S[0] = { html: () =>
+    '<p class="ad">' + D.funeral + 'からのご案内（広告）</p>' +
+    '<p class="hero">葬儀の後の手続きを、写真・確認・署名だけに</p>' +
+    '<ol class="three">' + ['写真を送る', '内容を確認する', '署名する'].map((t, i) => '<li><span class="k">' + (i + 1) + '</span>' + t + '</li>').join('') + '</ol>' +
+    '<div class="sec"><p class="st">任せられること</p><ul class="ticks">' + D.promises.map(t => '<li>' + t + '</li>').join('') + '</ul></div>' +
+    '<div class="price"><p class="st" style="margin:0">料金</p><p class="pv num">' + D.price + '</p><p class="small">' + D.priceNote + '</p></div>' +
+    '<button class="btn-p" data-next>申し込む</button>' };
+
+  S[1] = { html: () => {
+    const d = D.deceased, a = D.applicant;
+    return '<h2>お申し込み</h2><p class="lead">分かる範囲で大丈夫です。</p>' +
+      '<div class="sec"><p class="st">亡くなった方</p>' +
+      '<div class="fl"><span>お名前</span><b>' + d.name + 'さん</b></div>' +
+      '<div class="fl2"><div class="fl"><span>年齢</span><b>' + d.age + '歳</b></div><div class="fl"><span>お住まい</span><b>' + d.city + '</b></div></div>' +
+      '<div class="fl" style="margin:0"><span>亡くなった日</span><b>' + d.died + '</b></div></div>' +
+      '<div class="sec"><p class="st">申し込む方</p><div class="fl" style="margin:0"><span>お名前</span><b>' + a.name + 'さん（' + a.rel + '）</b></div>' +
+      '<p class="ok"><i class="ck"></i>本人確認は済みました</p></div>' +
+      '<div class="sec"><p class="st" style="margin:0">相続人</p><ul class="ppl">' + D.heirs.map(h => '<li>' + h.name + 'さん（' + h.rel + '）</li>').join('') + '</ul></div>' +
+      '<div class="sec"><p class="st" style="margin:0">ご存じのものにチェック</p><p class="small" style="margin:0">分からなくて大丈夫です</p>' +
+      '<div class="cks">' + D.known.map((k, i) => '<label class="cb"><input type="checkbox" id="kn' + i + '" checked><span>' + k + '</span></label>').join('') + '</div></div>' +
+      '<button class="btn-p" data-next>次へ</button>';
+  } };
+
+  let fillTok = 0;
+  function fillPhotos() {
+    const tok = ++fillTok, e = epoch;
+    const ths = $$('.th', scr), counts = [0, 0, 0, 0];
+    ths.forEach(t => t.classList.remove('in'));
+    $$('.fr', scr).forEach(f => f.classList.remove('has'));
+    $$('[data-c]', scr).forEach(c => { c.textContent = '0'; });
+    const use = $('#use'); if (use) { use.classList.add('pressed'); use.setAttribute('aria-pressed', 'true'); }
+    const send = $('#send'), tot = $('#tot');
+    if (send) send.disabled = true;
+    if (tot) { tot.textContent = '写真を入れています'; tot.classList.remove('full'); }
+    ths.forEach((t, i) => setTimeout(() => {
+      if (tok !== fillTok || e !== epoch) return;
+      t.classList.add('in');
+      const f = +t.dataset.f; counts[f]++;
+      const c = $('[data-c="' + f + '"]', scr); if (c) c.textContent = counts[f];
+      $('#fr' + f, scr).classList.add('has');
+      if (i === ths.length - 1) { if (send) send.disabled = false; if (tot) { tot.textContent = D.photos.length + '枚 入りました'; tot.classList.add('full'); } }
+    }, 120 + i * 110));
+  }
+  S[2] = {
+    html: () =>
+      '<h2>写真を送る</h2><p class="lead">撮るものは4つです。</p>' +
+      '<div class="frames">' + D.frames.map((f, i) => '<div class="fr" id="fr' + i + '"><b>' + f.title + '</b><small>' + f.sub + '</small><div class="ths">' +
+        D.photos.filter(p => p.frame === i).map(p => '<span class="th k-' + p.kind + '" data-f="' + i + '" title="' + p.label + '"><em class="num">' + p.no + '</em></span>').join('') +
+        '</div><span class="cnt"><span class="num" data-c="' + i + '">0</span>枚</span></div>').join('') + '</div>' +
+      '<button class="btn-s" id="use" aria-pressed="false">サンプルの写真を使う</button>' +
+      '<p class="tot" id="tot" aria-live="polite">まだ写真はありません</p>' +
+      '<div class="warn">暗証番号やパスワードは送らないでください。写真は手続きが終わったら消します。</div>' +
+      '<p class="small">通帳がない口座は、銀行から取引の履歴を取り寄せる書類を用意します。</p>' +
+      '<button class="btn-p" id="send" data-next disabled>' + D.photos.length + '枚を送る</button>',
+    enter: () => later(fillPhotos, 650)
+  };
+
+  function play3() {
+    const e = epoch;
+    const rows = $$('.r', scr), cards = $$('.nf', scr), iqs = $$('.iq', scr);
+    const c31 = $('#c31'), c7 = $('#c7');
+    rows.forEach(r => r.classList.remove('on', 'read'));
+    cards.forEach(c => c.classList.remove('in'));
+    iqs.forEach(q => { q.classList.remove('done'); const s = $('.tag', q); s.className = 'tag s-prep'; s.textContent = '用意しました'; });
+    c31.textContent = '0'; c7.textContent = '0';
+    scr.scrollTop = 0;
+    const T0 = 300, STEP = 330;
+    rows.forEach((r, i) => later(() => { rows.forEach(x => x.classList.remove('on')); r.classList.add('on', 'read'); follow(r); }, T0 + i * STEP));
+    const tEnd = T0 + rows.length * STEP;
+    later(() => rows.forEach(x => x.classList.remove('on')), tEnd);
+    later(() => {
+      const box = $('#cnt3'); scrollToY(topIn(box) - 8);
+      const t0 = performance.now(), dur = reduce ? 1 : 650, total = items.length;
+      const tick = now => {
+        if (e !== epoch) return;
+        const k = Math.min(1, (now - t0) / dur);
+        c31.textContent = Math.round(total * k); c7.textContent = Math.round(newCount * k);
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, tEnd + 100);
+    cards.forEach((c, i) => later(() => c.classList.add('in'), tEnd + 250 + i * 200));
+    later(() => scrollToY(topIn($('#inq')) - 8), tEnd + 1450);
+    const set = (cls, txt) => iqs.forEach(q => { const s = $('.tag', q); s.className = 'tag ' + cls; s.textContent = txt; });
+    later(() => set('s-wait', '回答待ち'), tEnd + 1950);
+    later(() => { set('s-done', '回答あり'); iqs.forEach(q => q.classList.add('done')); }, tEnd + 2950);
+    later(() => scrollToY(scr.scrollHeight), tEnd + 3300);
+  }
+  S[3] = {
+    html: () => {
+      const pb = D.passbook;
+      const rows = pb.rows.map((r, i) =>
+        (r.sep ? '<div class="pbsep">' + r.sep + '</div>' : '') +
+        '<div class="r' + (r.isNew ? ' new' : '') + '"><span class="num">' + r.d + '</span><span class="m">' + r.memo + '</span><span class="a num">' + r.out + '</span><span class="a num">' + r.inn + '</span>' +
+        '<span class="res">' + (r.isNew ? '<i class="tag t-new">新たに発見</i>' : '<i class="tag t-ok">読み取り</i>') + '<span>' + r.res + '</span></span></div>').join('');
+      return '<h2>写真を読んでいます</h2><p class="lead">' + D.photos.length + '枚のうち、A銀行の通帳の1ページです。</p>' +
+        '<div class="pb"><div class="pbh"><span>' + pb.title + '</span><span>' + pb.photo + '</span></div>' +
+        '<div class="rh"><span>日付</span><span>摘要</span><span class="a">お支払い</span><span class="a">お預かり</span></div>' + rows + '</div>' +
+        '<div class="cnt3" id="cnt3"><div><span class="cl">' + D.photos.length + '枚から見つかった手続き</span><b class="num"><span id="c31">0</span><small>件</small></b></div>' +
+        '<div class="nw"><span class="cl">うち、新しく見つかったもの</span><b class="num"><span id="c7">0</span><small>件</small></b></div></div>' +
+        D.newCards.map(c => '<div class="nf"><p class="t"><span>' + c.title + '</span><span class="tag t-new">新たに発見</span></p>' + (c.what ? '<p>' + c.what + '</p>' : '') + '<p class="ev">' + c.ev + '</p></div>').join('') +
+        '<div class="inq" id="inq"><p class="st">相続人のお名前で照会します</p>' +
+        D.inquiries.map(q => '<div class="iq"><span>' + q.name + '</span><span class="tag s-prep">用意しました</span><span class="rs">' + q.result + '</span></div>').join('') +
+        '<p class="small">申請書は、' + D.heirs[0].short + 'さんが内容を確かめて署名します。</p></div>' +
+        '<button class="btn-s" id="replay">もう一度見る</button>';
+    },
+    enter: play3
+  };
+
+  function list4() {
+    const its = byTab(st.tab);
+    let h = '';
+    if (st.tab === 'money') h += '<p class="tnote">区の冊子では、各金融機関とだけ書かれている部分です</p>';
+    if (st.tab === 'life') h += '<p class="tnote">区の冊子では、各契約会社、各クレジット会社とだけ書かれている部分です</p>';
+    if (st.tab === 'office') {
+      const o = D.office, n = kuItems.length, rest = o.total - n;
+      const cells = Array.from({ length: o.total }, (_, i) => '<i' + (o.picked.includes(i) ? ' class="on"' : '') + '></i>').join('');
+      h += '<div class="cmp"><p class="cap">文京区の' + o.book + '</p>' +
+        '<p class="sen">区役所の手続きは<b class="num">' + o.total + '</b>項目。田中さんに当てはまるのは<b class="num">' + n + '</b>件です</p>' +
+        '<div class="cells" aria-hidden="true">' + cells + '</div>' +
+        '<button class="more" aria-expanded="' + st.more + '">' + (st.more ? '当てはまらない' + rest + '件を閉じる' : '当てはまらない' + rest + '件を見る') + '</button>' +
+        (st.more ? '<ul class="grey">' + o.notApplicable.map(t => '<li>' + t + '</li>').join('') + '<li>ほか' + (rest - o.notApplicable.length) + '件</li></ul>' : '') + '</div>';
+      const others = its.filter(x => x.place !== '区役所');
+      h += '<p class="grp">区役所　' + n + '件</p><ul class="its">' + kuItems.map(itemRow).join('') + '</ul>';
+      h += '<p class="grp">年金事務所、都税事務所ほか　' + others.length + '件</p><ul class="its">' + others.map(itemRow).join('') + '</ul>';
+      h += '<div class="visit" id="visit"><p class="st">' + o.visitTitle + '</p><ul>' + o.visit.map(t => '<li>' + t + '</li>').join('') + '</ul></div>';
+      return h;
+    }
+    return h + '<ul class="its">' + its.map(itemRow).join('') + '</ul>';
+  }
+  S[4] = {
+    html: () => {
+      const y = D.you;
+      return '<h2>' + D.deceased.name + 'さんの手続き一覧</h2>' +
+        '<div class="sum"><p class="big num">' + items.length + '<small>件</small></p><div><p>あなたがやることは</p><ul class="num"><li>確認<b>' + y.checks + '</b>回</li><li>署名<b>' + y.signs + '</b>通</li><li>区役所<b>' + y.office + '</b>回</li></ul></div></div>' +
+        '<div class="tabs" role="tablist">' + TABS.map(t => '<button role="tab" data-tab="' + t.id + '" aria-selected="' + (st.tab === t.id) + '">' + t.name + '<span class="num">' + byTab(t.id).length + '件</span></button>').join('') + '</div>' +
+        '<div id="lst">' + list4() + '</div>';
+    },
+    enter: () => { if (autoOn) later(() => { const v = $('.grp', scr); if (v) scrollToY(topIn(v) - 8); }, 4200); }
+  };
+
+  function confirm5() {
+    st.conf = true;
+    const cb = $('#cf'), m = $('#cfm'), btn = $('#cfbtn');
+    if (cb) cb.checked = true;
+    if (m) m.classList.add('show');
+    if (btn) { btn.disabled = true; btn.textContent = 'この内容で確定しました'; }
+  }
+  S[5] = {
+    html: () => {
+      const f = [
+        ['亡くなった方の氏名', D.deceased.name, '写真12から'],
+        ['生年月日', D.deceased.born, '写真12から'],
+        ['口座番号', D.form.account, '写真1の表紙から'],
+        ['相続人', D.heirs.map(h => h.name).join('、'), '戸籍一式から'],
+        ['払い戻し先', D.form.payout, '申し込みの入力から']
+      ];
+      const others = [['B信用金庫', '相続の届出書'], ['E証券', '相続の手続き依頼書'], ['C生命', '保険金の請求書'], ['解約の申し込み', cancels.length + '件（まとめて）']];
+      return '<h2>書類を確かめる</h2><p class="lead">相手先ごとに、記入済みの書類をそろえました。</p>' +
+        '<div class="bds"><div class="bd open"><div class="h"><span><b>A銀行</b><small>相続届　開いています</small></span><span class="tag t-ok">確認待ち</span></div>' +
+        '<div class="paper"><p class="pt">相続届</p><p class="pto">A銀行 御中</p>' +
+        f.map(r => '<div class="pf"><span class="k">' + r[0] + '</span><span class="v num">' + r[1] + '</span><span class="fr2">' + r[2] + '</span></div>').join('') +
+        '<div class="pf"><span class="k">署名と実印</span><span class="v blank">付せんの場所に、相続人のお二人が署名します</span></div>' +
+        '<p class="legend"><i></i>色のついた欄は、AIが入れた欄です</p></div></div>' +
+        others.map(o => '<div class="bd"><div class="h"><span><b>' + o[0] + '</b><small>' + o[1] + '</small></span><span class="tag t-ok">確認待ち</span></div></div>').join('') + '</div>' +
+        '<div class="sec att"><p class="st">添付する書類</p><ul><li>戸籍一式</li><li>印鑑証明（相続人のお二人分）</li><li>本人確認書類の写し</li></ul><p class="same">全部の相手先で同じものを使います</p></div>' +
+        '<label class="cbx"><input type="checkbox" id="cf"' + (st.conf ? ' checked' : '') + '>内容を確認しました</label>' +
+        '<button class="btn-p" id="cfbtn"' + (st.conf ? ' disabled>この内容で確定しました' : '>この内容で確定する') + '</button>' +
+        '<p class="ok done-msg' + (st.conf ? ' show' : '') + '" id="cfm"><i class="ck"></i>A銀行の書類を確定しました</p>' +
+        '<p class="small">書類の内容を決めるのはご本人です</p>';
+    },
+    enter: () => { if (autoOn) later(() => { const b = $('#cfbtn'); if (b) { scrollToY(topIn(b) - 120); later(confirm5, 900); } }, 3200); }
+  };
+
+  const ICON = [
+    '<svg viewBox="0 0 56 44" aria-hidden="true"><rect x="14" y="4" width="28" height="24" rx="2" fill="#FFFFFE" stroke="#02253C" stroke-width="2"/><path d="M19 11h18M19 16h18M19 21h11" stroke="#9AA8B1" stroke-width="2"/><rect x="5" y="18" width="46" height="22" rx="3" fill="#E8ECEF" stroke="#02253C" stroke-width="2"/><path d="M5 20l23 12 23-12" fill="none" stroke="#02253C" stroke-width="2"/></svg>',
+    '<svg viewBox="0 0 56 44" aria-hidden="true"><rect x="10" y="3" width="32" height="38" rx="2" fill="#FFFFFE" stroke="#02253C" stroke-width="2"/><path d="M15 10h22M15 15h22M15 20h14" stroke="#9AA8B1" stroke-width="2"/><path d="M15 32h14" stroke="#02253C" stroke-width="2"/><circle cx="35" cy="31" r="4" fill="none" stroke="#02253C" stroke-width="2"/><rect x="38" y="24" width="14" height="9" rx="1" fill="#CCD3D8" stroke="#355163" stroke-width="1.5"/></svg>',
+    '<svg viewBox="0 0 56 44" aria-hidden="true"><rect x="5" y="9" width="46" height="28" rx="3" fill="#FFFFFE" stroke="#02253C" stroke-width="2"/><path d="M5 11l23 13 23-13" fill="none" stroke="#02253C" stroke-width="2"/><rect x="39" y="14" width="8" height="9" fill="#CCD3D8" stroke="#355163" stroke-width="1.5"/></svg>'
+  ];
+  function agree6() {
+    st.agree = true;
+    const b = $('#agree'), m = $('#agm');
+    if (b) { b.disabled = true; b.textContent = '同意しました'; }
+    if (m) m.classList.add('show');
+  }
+  S[6] = {
+    html: () =>
+      '<h2>署名が要る書類 ' + D.signDocs.length + '通</h2>' +
+      '<div class="chips">' + D.signDocs.map(t => '<span>' + t + '</span>').join('') + '</div>' +
+      '<p class="lead">銀行と証券会社は、相続人全員の署名と実印が要ります（' + D.heirs.map(h => h.short + 'さん').join('、') + '）。保険金の請求は、受取人の方が署名します。</p>' +
+      '<ol class="flow3">' + ['記入済みの書類が届く', '付せんの場所に署名と押印', '返信用の封筒で返す'].map((t, i) => '<li>' + ICON[i] + '<span class="k">' + (i + 1) + '</span>' + t + '</li>').join('') + '</ol>' +
+      '<p class="ok"><i class="ck"></i>' + D.heirs[1].short + 'さんにも同じ案内を送りました</p>' +
+      '<div class="sec" style="margin-top:14px"><p class="st">解約の申し込み ' + cancels.length + '件</p><p>この画面で同意するだけです。</p>' +
+      '<p class="list12">' + cancels.map(x => x.name).join('、') + '</p>' +
+      '<button class="btn-p" id="agree"' + (st.agree ? ' disabled>同意しました' : '>同意する') + '</button>' +
+      '<p class="ok done-msg' + (st.agree ? ' show' : '') + '" id="agm"><i class="ck"></i>' + cancels.length + '件の解約を取り次ぎます</p></div>' +
+      '<p class="small">照会の申請書' + D.inquiries.length + '通は、' + D.inquirySigned + 'に署名済みです</p>',
+    enter: () => { if (autoOn) later(() => { const b = $('#agree'); if (b) { scrollToY(topIn(b) - 160); later(agree6, 900); } }, 3200); }
+  };
+
+  function autoScroll7() {
+    if (reduce) return;
+    const e = epoch, from = scr.scrollTop, to = scr.scrollHeight - scr.clientHeight;
+    if (to <= from) return;
+    const dur = Math.min(9000, Math.max(5000, (to - from) * 3)), t0 = performance.now();
+    let stop = false;
+    const halt = () => { stop = true; };
+    scr.addEventListener('wheel', halt, { once: true, passive: true });
+    scr.addEventListener('touchstart', halt, { once: true, passive: true });
+    scr.addEventListener('pointerdown', halt, { once: true });
+    const step = now => {
+      if (stop || e !== epoch) return;
+      const k = Math.min(1, (now - t0) / dur);
+      const ease = k < 0.5 ? 2 * k * k : 1 - Math.pow(2 - 2 * k, 2) / 2;
+      scr.scrollTop = from + (to - from) * ease;
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  S[7] = {
+    html: () => {
+      const cnt = PROG.map(p => [p[0], p[1], items.filter(x => x.prog === p[0]).length]);
+      const ask = items.find(x => x.prog === '確認のお願い');
+      const y = D.you;
+      return '<h2>' + D.todayLabel + 'の進み具合</h2>' +
+        '<div class="bar7" aria-hidden="true">' + cnt.map(c => '<i class="g-' + c[1] + '" style="width:' + (c[2] / items.length * 100) + '%"></i>').join('') + '</div>' +
+        '<ul class="lg7">' + cnt.map(c => '<li><i class="sw g-' + c[1] + '"></i>' + c[0] + '<b class="num">' + c[2] + '件</b></li>').join('') + '</ul>' +
+        (ask ? '<div class="ask"><p class="st">確認のお願い</p><p>' + ask.name + '（' + ask.yen + '）は、明細に中身が出ません。何の支払いか、分かる方は教えてください。</p></div>' : '') +
+        '<p class="dl7">' + dotsOf(1, '1つ目') + '出した　' + dotsOf(2, '2つ目') + '相手先で処理中　' + dotsOf(3, '3つ目') + '完了</p>' +
+        TABS.map(t => '<p class="grp">' + t.name + '　' + byTab(t.id).length + '件</p><ul>' + byTab(t.id).map(x =>
+          '<li class="pr"><span class="nm"><b>' + x.name + '</b><small>' + (x.tab === 'office' ? x.place : x.what) + '</small></span><span class="rt">' + dotsOf(x.dots, x.prog) + progChip(x.prog) + '</span><span class="lg">' + x.log + '</span></li>').join('') + '</ul>').join('') +
+        '<div class="ddl"><p class="st">期限</p><ul>' + D.deadlines.map(d => '<li><b>' + d.name + '</b><span>' + d.label + (d.note ? '　' + d.note : '') + '</span>' + (d.date ? '<span class="rm num">あと' + daysTo(d.date) + '日</span>' : '') + '</li>').join('') + '</ul></div>' +
+        '<div class="hand"><p class="st">専門家への引き継ぎ</p><p>' + D.partner + '</p><button class="btn-s" id="handbtn">' + (st.asked ? '相談を受け付けました' : '司法書士に相談する') + '</button></div>' +
+        '<div class="ntc"><b>' + D.notice.from + '</b>' + D.notice.body + '</div>' +
+        '<div class="fin"><div class="self"><p class="st">自分でやる場合</p><p>' + items.length + 'の相手先と手続きを、1件ずつ調べて、書いて、出します。</p></div>' +
+        '<div class="ours"><p class="st">このサービスでやったこと</p><ul class="num"><li><b>' + D.photos.length + '<small>枚</small></b>写真</li><li><b>' + y.checks + '<small>回</small></b>確認</li><li><b>' + y.signs + '<small>通</small></b>署名</li><li><b>' + y.office + '<small>回</small></b>区役所</li></ul></div></div>';
+    },
+    enter: () => later(autoScroll7, 1800)
+  };
+
+  /* ---------- 描画と操作 ---------- */
+  $('#svc').textContent = D.service;
+  $('#svc2').textContent = D.service;
+  $('#steps').innerHTML = T.steps.map((s, i) => '<li><span class="k num">' + (i + 1) + '</span><span class="lb">' + s + '</span></li>').join('');
+  $('#dots').innerHTML = T.scenes.map((s, i) => '<button class="dot" data-i="' + i + '" aria-label="場面' + i + '　' + s.name + '"><i></i></button>').join('');
+
+  function renderNotes() {
+    const s = T.scenes[cur];
+    nb.innerHTML = '<p class="scn"><b class="num">' + cur + '</b>' + s.name + '</p>' +
+      '<p class="lab">この場面で伝えること</p><p class="say">' + s.say + '</p>' +
+      '<div class="back"><p class="lab">裏側で当社がやっていること</p>' +
+      (s.flow ? '<div class="flow">' + s.flow.map((f, i) => '<div><i class="num">' + (i + 1) + '</i><b>' + f[0] + '</b><span>' + f[1] + '</span></div>').join('') + '</div>' : '') +
+      s.back.map(t => '<p class="bl">' + t + '</p>').join('') + '</div>';
+  }
+  function render() {
+    epoch++; clearTimers();
+    const s = T.scenes[cur];
+    $$('#steps li').forEach((li, i) => { li.className = i < s.step ? 'done' : i === s.step ? 'now' : ''; li.setAttribute('aria-current', i === s.step ? 'step' : 'false'); });
+    $$('#dots .dot').forEach((d, i) => { d.className = 'dot' + (i < cur ? ' done' : i === cur ? ' now' : ''); d.setAttribute('aria-current', i === cur ? 'true' : 'false'); });
+    $('#who').textContent = s.bar || D.applicant.name + 'さん';
+    scr.innerHTML = S[cur].html();
+    scr.scrollTop = 0;
+    scr.classList.remove('fade'); void scr.offsetWidth; scr.classList.add('fade');
+    renderNotes();
+    $('#prev').disabled = cur === 0;
+    $('#next').disabled = cur === N - 1;
+    if (S[cur].enter) S[cur].enter();
+  }
+  function go(i, fromAuto) {
+    if (!fromAuto && autoOn) stopAuto();
+    cur = Math.max(0, Math.min(N - 1, i));
+    render();
+  }
+  const next = () => go(cur + 1);
+  const prev = () => go(cur - 1);
+  function home() { stopAuto(); Object.assign(st, { tab: 'office', open: new Set([22]), more: false, conf: false, agree: false, asked: false }); go(0); }
+
+  const pbar = $('#pbar'), autoBtn = $('#auto');
+  function startAuto() {
+    stopAuto();
+    Object.assign(st, { tab: 'office', open: new Set([22]), more: false, conf: false, agree: false, asked: false });
+    autoOn = true;
+    autoBtn.textContent = '止める'; autoBtn.setAttribute('aria-pressed', 'true');
+    const secs = T.autoSeconds, total = secs.reduce((a, b) => a + b, 0);
+    pbar.style.transition = 'none'; pbar.style.width = '0'; void pbar.offsetWidth;
+    pbar.style.transition = 'width ' + total + 's linear'; pbar.style.width = '100%';
+    go(0, true);
+    let t = 0;
+    secs.forEach((d, i) => { t += d; autoTimers.push(setTimeout(() => { if (i < secs.length - 1) go(i + 1, true); else stopAuto(); }, t * 1000)); });
+  }
+  function stopAuto() {
+    autoTimers.forEach(clearTimeout); autoTimers = [];
+    autoOn = false;
+    autoBtn.textContent = '60秒で通す'; autoBtn.setAttribute('aria-pressed', 'false');
+    pbar.style.transition = 'none'; pbar.style.width = '0';
+  }
+
+  $('#next').addEventListener('click', next);
+  $('#prev').addEventListener('click', prev);
+  $('#home').addEventListener('click', home);
+  autoBtn.addEventListener('click', () => (autoOn ? stopAuto() : startAuto()));
+  $('#dots').addEventListener('click', e => { const d = e.target.closest('.dot'); if (d) go(+d.dataset.i); });
+  $('#ntog').addEventListener('click', () => { const o = notesEl.classList.toggle('open'); $('#ntog').setAttribute('aria-expanded', o); });
+
+  scr.addEventListener('click', e => {
+    const t = e.target;
+    if (t.closest('[data-next]')) { if (!t.closest('[data-next]').disabled) next(); return; }
+    if (t.closest('#use')) { fillPhotos(); return; }
+    if (t.closest('#replay')) { epoch++; clearTimers(); play3(); return; }
+    const tab = t.closest('[data-tab]');
+    if (tab) { st.tab = tab.dataset.tab; $$('.tabs button', scr).forEach(b => b.setAttribute('aria-selected', b === tab)); $('#lst').innerHTML = list4(); return; }
+    const ith = t.closest('.ith');
+    if (ith) {
+      const li = ith.closest('.it'), no = +li.dataset.no;
+      if (st.open.has(no)) st.open.delete(no); else st.open.add(no);
+      li.classList.toggle('open', st.open.has(no)); ith.setAttribute('aria-expanded', st.open.has(no));
+      return;
+    }
+    if (t.closest('.more')) { st.more = !st.more; $('#lst').innerHTML = list4(); return; }
+    if (t.closest('#cfbtn')) { confirm5(); return; }
+    if (t.closest('#agree')) { agree6(); return; }
+    if (t.closest('#handbtn')) { st.asked = true; t.closest('#handbtn').textContent = '相談を受け付けました'; return; }
   });
+  scr.addEventListener('change', e => { if (e.target.id === 'cf' && !e.target.checked && st.conf) e.target.checked = true; });
+
+  document.addEventListener('keydown', e => {
+    const f = e.target.closest && e.target.closest('input,textarea,select');
+    if (f && f.type !== 'checkbox') return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); home(); }
+  });
+
+  const canZoom = window.CSS && CSS.supports && CSS.supports('zoom', '2');
+  function fit() {
+    const w = window.innerWidth, h = window.innerHeight;
+    if (w >= 900) {
+      const z = canZoom ? Math.max(1, Math.min(w / 1280, h / 720, 1.6)) : 1;
+      app.style.zoom = z === 1 ? '' : String(z);
+      app.style.width = (w / z) + 'px';
+      app.style.height = Math.max(h / z, 520) + 'px';
+      document.body.style.overflow = h / z < 520 ? 'auto' : 'hidden';
+    } else {
+      app.style.zoom = ''; app.style.width = ''; app.style.height = '';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  window.addEventListener('resize', fit);
+  fit();
+  render();
+  window.demo = { go: i => go(i), next, prev, home, get cur() { return cur; } };
 }
 </script>
 </body>
