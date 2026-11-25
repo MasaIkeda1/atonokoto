@@ -534,7 +534,7 @@ button:focus-visible,input:focus-visible,#scr:focus-visible{outline:3px solid va
   <main class="stage">
     <div class="phone" aria-label="遺族が見る画面">
       <div class="screen">
-        <div class="sbar"><span class="num">10:24</span><span class="bat" aria-hidden="true"></span></div>
+        <div class="sbar"><span class="num" id="clock"></span><span class="bat" aria-hidden="true"></span></div>
         <div class="abar"><div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#02253C" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#355163" stroke-width="1.6" stroke-linecap="round"/></svg><span id="svc2">あとのこと</span></div><span class="who" id="who"></span></div>
         <div id="scr" tabindex="-1"></div>
       </div>
@@ -852,6 +852,11 @@ button:focus-visible,input:focus-visible,#scr:focus-visible{outline:3px solid va
   /* ---------- 描画と操作 ---------- */
   $('#svc').textContent = D.service;
   $('#svc2').textContent = D.service;
+  /* スマホの時計：見ている端末の今の時刻を出す（1分ごとに更新） */
+  const clockEl = $('#clock');
+  const tickClock = () => { const d = new Date(); clockEl.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  tickClock();
+  setInterval(tickClock, 10000);
   $('#steps').innerHTML = T.steps.map((s, i) => '<li><span class="k num">' + (i + 1) + '</span><span class="lb">' + s + '</span></li>').join('');
   $('#dots').innerHTML = T.scenes.map((s, i) => '<button class="dot" data-i="' + i + '" aria-label="場面' + i + '　' + s.name + '"><i></i></button>').join('');
 
