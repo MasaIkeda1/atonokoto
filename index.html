@@ -211,9 +211,14 @@ ul,ol{padding:0;list-style:none}
 .demo{flex:none;font-size:14px;line-height:1.4;padding:4px 10px;border:1px solid var(--lg);border-radius:6px;white-space:nowrap}
 
 /* 舞台 */
-.stage{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center;width:100%;max-width:1240px;height:100%;min-height:0;margin:0 auto;padding:8px clamp(16px,2.5vw,32px)}
-.phone{display:flex;align-self:center;width:406px;height:100%;min-height:0;padding:8px;border-radius:40px;background:var(--navy);box-shadow:0 8px 20px rgba(2,37,60,.16)}
-.screen{flex:1;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);background:var(--white);border-radius:32px;overflow:hidden}
+.stage{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center;width:100%;max-width:1240px;height:100%;min-height:0;margin:0 auto;padding:8px clamp(16px,2.5vw,32px) 0}
+.phone{display:flex;align-self:end;width:412px;height:100%;min-height:0;padding:11px 11px 0;border-radius:46px 46px 0 0;background:var(--navy);box-shadow:0 8px 20px rgba(2,37,60,.16)}
+.notes{padding-bottom:8px}
+.screen{flex:1;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);background:var(--white);border-radius:35px 35px 0 0;overflow:hidden}
+.sbar{position:relative;display:flex;justify-content:space-between;align-items:center;height:36px;padding:2px 30px 0;font-size:14px;font-weight:700}
+.sbar::after{content:"";position:absolute;left:50%;top:8px;width:98px;height:25px;margin-left:-49px;border-radius:13px;background:var(--navy)}
+.bat{position:relative;display:inline-block;width:24px;height:12px;border:1.5px solid var(--navy);border-radius:3px}
+.bat::after{content:"";position:absolute;inset:1.5px 7px 1.5px 1.5px;background:var(--navy);border-radius:1px}
 .abar{display:flex;align-items:center;justify-content:space-between;gap:8px;height:44px;padding:0 18px;border-bottom:1px solid var(--line)}
 .abar .logo{font-size:16px;color:var(--navy)}
 .abar .logo svg{width:20px;height:20px}
@@ -498,7 +503,8 @@ button:focus-visible,input:focus-visible,#scr:focus-visible{outline:3px solid va
   .demo{margin-left:auto;font-size:13px;padding:2px 8px}
   .stage{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:0;padding:0;align-items:stretch}
   .phone{align-self:stretch;width:auto;height:auto;max-height:none;min-height:0;padding:0;border-radius:0;background:none;box-shadow:none}
-  .screen{border-radius:0}
+  .screen{border-radius:0;grid-template-rows:auto minmax(0,1fr)}
+  .sbar{display:none}
   .notes{align-self:stretch;max-width:none;padding:0 16px;background:var(--white);border-top:1px solid var(--gray)}
   .ntog{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:0;border:0;background:none;color:var(--navy);font-size:16px;font-weight:700;cursor:pointer}
   .ntog i{position:relative;width:14px;height:14px}
@@ -528,6 +534,7 @@ button:focus-visible,input:focus-visible,#scr:focus-visible{outline:3px solid va
   <main class="stage">
     <div class="phone" aria-label="遺族が見る画面">
       <div class="screen">
+        <div class="sbar"><span class="num">10:24</span><span class="bat" aria-hidden="true"></span></div>
         <div class="abar"><div class="logo"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="5" y="3" width="16" height="20" rx="3" fill="none" stroke="#02253C" stroke-width="1.6"/><path d="M9 9h8M9 13h8M9 17h5" stroke="#355163" stroke-width="1.6" stroke-linecap="round"/></svg><span id="svc2">あとのこと</span></div><span class="who" id="who"></span></div>
         <div id="scr" tabindex="-1"></div>
       </div>
@@ -944,15 +951,15 @@ button:focus-visible,input:focus-visible,#scr:focus-visible{outline:3px solid va
   /* スマホの枠の大きさ：画面の高さいっぱいに広げ、中の文字を大きく見せる。
      PHONE.minLines は枠の中に見せる最低の高さ（小さくすると文字が大きくなる）、
      maxShare は横幅のうちスマホが使ってよい割合。発表中は ＋ と － のキーでも変えられる */
-  const PHONE = { minLines: 420, maxShare: 0.52, keyMax: 0.64 };
+  const PHONE = { minLines: 440, maxShare: 0.5, keyMax: 0.62, frameW: 412 };
   let userScale = 1;
   function fitPhone() {
     if (window.innerWidth < 900 || !canZoom) { phoneEl.style.zoom = ''; phoneEl.style.height = ''; return; }
     const cs = getComputedStyle(stageEl);
     const H = stageEl.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     const W = Math.min(stageEl.clientWidth, 1240) - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    const base = Math.min(H / PHONE.minLines, (W * PHONE.maxShare) / 406);
-    const s = Math.max(1, Math.min(base * userScale, (W * PHONE.keyMax) / 406, 1.9));
+    const base = Math.min(H / PHONE.minLines, (W * PHONE.maxShare) / PHONE.frameW);
+    const s = Math.max(1, Math.min(base * userScale, (W * PHONE.keyMax) / PHONE.frameW, 1.9));
     phoneEl.style.zoom = String(s);
     phoneEl.style.height = (H / s) + 'px';
   }
